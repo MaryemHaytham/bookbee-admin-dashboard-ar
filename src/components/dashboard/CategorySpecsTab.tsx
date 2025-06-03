@@ -1,0 +1,263 @@
+
+import React, { useState, useEffect } from 'react';
+import { apiService, type CategorySpec, type Category } from '../../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
+import { Plus, Edit, Trash2, Settings } from 'lucide-react';
+
+export const CategorySpecsTab: React.FC = () => {
+  const [categorySpecs, setCategorySpecs] = useState<CategorySpec[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingSpec, setEditingSpec] = useState<CategorySpec | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    category_id: '',
+  });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [specsData, categoriesData] = await Promise.all([
+        apiService.getCategorySpecs(),
+        apiService.getCategories(),
+      ]);
+      setCategorySpecs(specsData);
+      setCategories(categoriesData);
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في تحميل البيانات",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim() || !formData.category_id) {
+      toast({
+        title: "خطأ",
+        description: "يرجى ملء جميع البيانات المطلوبة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (editingSpec) {
+        await apiService.updateCategorySpec(editingSpec.name, formData.name);
+        toast({
+          title: "نجح",
+          description: "تم تحديث المواصفة بنجاح",
+        });
+      } else {
+        await apiService.createCategorySpec(formData.category_id, formData.name);
+        toast({
+          title: "نجح",
+          description: "تم إضافة المواصفة بنجاح",
+        });
+      }
+      
+      setIsDialogOpen(false);
+      resetForm();
+      loadData();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في حفظ المواصفة",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (specName: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه المواصفة؟')) return;
+    
+    try {
+      await apiService.deleteCategorySpec(specName);
+      toast({
+        title: "نجح",
+        description: "تم حذف المواصفة بنجاح",
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف المواصفة",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = (spec: CategorySpec) => {
+    setEditingSpec(spec);
+    setFormData({
+      name: spec.name,
+      category_id: spec.category_id,
+    });
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setEditingSpec(null);
+    setFormData({
+      name: '',
+      category_id: '',
+    });
+  };
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c.category_id === categoryId);
+    return category?.name || 'غير محدد';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Settings className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">جاري تحميل مواصفات الفئات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">إدارة مواصفات الفئات</h2>
+          <p className="text-muted-foreground">إضافة وتعديل وحذف مواصفات فئات المنتجات</p>
+        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
+              <Plus className="mr-2 h-4 w-4" />
+              إضافة مواصفة جديدة
+            </Button>
+          </DialogTrigger>
+          
+          <DialogContent>
+            <form onSubmit={handleSubmit}>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingSpec ? 'تعديل المواصفة' : 'إضافة مواصفة جديدة'}
+                </DialogTitle>
+                <DialogDescription>
+                  أدخل بيانات المواصفة الجديدة
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="category_id">الفئة</Label>
+                  <Select 
+                    value={formData.category_id} 
+                    onValueChange={(value) => setFormData({...formData, category_id: value})}
+                    disabled={!!editingSpec}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.category_id} value={category.category_id!}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="specName">اسم المواصفة</Label>
+                  <Input
+                    id="specName"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="مثال: اللون"
+                    required
+                    className="text-right"
+                    dir="rtl"
+                  />
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  إلغاء
+                </Button>
+                <Button type="submit" className="bg-primary hover:bg-primary/90">
+                  {editingSpec ? 'تحديث' : 'إضافة'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>قائمة مواصفات الفئات</CardTitle>
+          <CardDescription>
+            عدد المواصفات: {categorySpecs.length}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right">اسم المواصفة</TableHead>
+                <TableHead className="text-right">الفئة</TableHead>
+                <TableHead className="text-right">الإجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categorySpecs.map((spec) => (
+                <TableRow key={spec.category_spec_id}>
+                  <TableCell className="text-right font-medium">{spec.name}</TableCell>
+                  <TableCell className="text-right">{getCategoryName(spec.category_id)}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(spec)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(spec.name)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

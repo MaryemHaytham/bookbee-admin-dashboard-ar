@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,24 +26,24 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					DEFAULT: 'hsl(25, 95%, 53%)', // Orange theme
+					foreground: 'hsl(210 40% 98%)'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					DEFAULT: 'hsl(210 40% 96.1%)',
+					foreground: 'hsl(222.2 47.4% 11.2%)'
 				},
 				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					DEFAULT: 'hsl(0 84.2% 60.2%)',
+					foreground: 'hsl(210 40% 98%)'
 				},
 				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					DEFAULT: 'hsl(210 40% 96.1%)',
+					foreground: 'hsl(215.4 16.3% 46.9%)'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					DEFAULT: 'hsl(25, 95%, 53%)', // Orange accent
+					foreground: 'hsl(210 40% 98%)'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -61,12 +62,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				bookbee: {
+					orange: '#FF6B35',
+					'orange-light': '#FF8C69',
+					'orange-dark': '#E55A2B'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				arabic: ['Cairo', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
