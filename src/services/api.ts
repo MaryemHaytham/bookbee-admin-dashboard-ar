@@ -67,7 +67,7 @@ class ApiService {
   // Auth methods
   async login(email: string, password: string): Promise<AuthResponse> {
     console.log('Attempting login with:', { email });
-    const response = await fetch(`${API_BASE_URL}/auth/v1/token`, {
+   const response = await fetch(`${API_BASE_URL}/auth/v1/token?grant_type=password`, {
       method: 'POST',
       headers: this.getHeaders(false),
       body: JSON.stringify({
