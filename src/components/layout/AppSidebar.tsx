@@ -1,13 +1,10 @@
-
+import React from 'react';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
@@ -18,7 +15,9 @@ import {
   Users, 
   BookOpen,
   LogOut,
-  User
+  User,
+  FolderTree,
+  Search
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -30,28 +29,33 @@ interface AppSidebarProps {
 
 const menuItems = [
   {
-    title: "المنتجات",
-    url: "products",
+    title: 'المنتجات',
+    url: 'products',
     icon: Package,
   },
   {
-    title: "الفئات",
-    url: "categories",
-    icon: Tag,
+    title: 'الفئات',
+    url: 'categories',
+    icon: FolderTree,
   },
   {
-    title: "مواصفات الفئات",
-    url: "category-specs",
+    title: 'مواصفات الفئات',
+    url: 'category-specs',
     icon: Settings,
   },
   {
-    title: "مالكو المنتجات",
-    url: "product-owners",
+    title: 'أصحاب المنتجات',
+    url: 'product-owners',
     icon: Users,
+  },
+  {
+    title: 'البحث الذكي',
+    url: 'smart-search',
+    icon: Search,
   },
 ];
 
-export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
+export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }) => {
   const { user, logout } = useAuth();
 
   return (
@@ -116,4 +120,4 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
       </SidebarFooter>
     </Sidebar>
   );
-}
+};

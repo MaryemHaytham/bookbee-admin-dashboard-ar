@@ -6,6 +6,7 @@ import { ProductsTab } from './ProductsTab';
 import { CategoriesTab } from './CategoriesTab';
 import { CategorySpecsTab } from './CategorySpecsTab';
 import { ProductOwnersTab } from './ProductOwnersTab';
+import { SmartSearchTab } from './SmartSearchTab';
 
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('products');
@@ -20,6 +21,8 @@ export const Dashboard: React.FC = () => {
         return <CategorySpecsTab />;
       case 'product-owners':
         return <ProductOwnersTab />;
+      case 'smart-search':
+        return <SmartSearchTab />;
       default:
         return <ProductsTab />;
     }
