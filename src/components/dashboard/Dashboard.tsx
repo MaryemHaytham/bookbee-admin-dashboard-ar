@@ -27,16 +27,16 @@ export const Dashboard: React.FC = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50/30">
-        <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-6">
-          <div className="mb-6">
+      <div className="min-h-screen flex w-full bg-gray-50/30" dir="rtl">
+        <main className="flex-1 p-3 md:p-6 order-2">
+          <div className="mb-4 md:mb-6">
             <SidebarTrigger className="mb-4" />
           </div>
           <div className="max-w-7xl mx-auto">
             {renderContent()}
           </div>
         </main>
+        <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     </SidebarProvider>
   );

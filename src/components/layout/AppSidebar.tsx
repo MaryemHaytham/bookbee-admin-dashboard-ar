@@ -55,22 +55,25 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
   const { user, logout } = useAuth();
 
   return (
-    <Sidebar className="border-r-2 border-primary/20">
-      <SidebarHeader className="p-4">
+    <Sidebar 
+      side="right" 
+      className="border-l-2 border-primary/20 order-1 w-full md:w-auto"
+    >
+      <SidebarHeader className="p-3 md:p-4">
         <div className="flex items-center gap-3">
           <div className="bg-primary p-2 rounded-lg">
-            <BookOpen className="h-6 w-6 text-white" />
+            <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary">BookBee</h2>
-            <p className="text-sm text-muted-foreground">لوحة التحكم</p>
+            <h2 className="text-base md:text-lg font-bold text-primary">BookBee</h2>
+            <p className="text-xs md:text-sm text-muted-foreground">لوحة التحكم</p>
           </div>
         </div>
       </SidebarHeader>
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-primary font-semibold">
+          <SidebarGroupLabel className="text-primary font-semibold text-sm md:text-base">
             إدارة النظام
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -80,9 +83,9 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.url)}
                     isActive={activeTab === item.url}
-                    className="w-full justify-start hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-white"
+                    className="w-full justify-start hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-white text-sm md:text-base"
                   >
-                    <item.icon className="ml-2" />
+                    <item.icon className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                     <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -92,21 +95,21 @@ export function AppSidebar({ activeTab, onTabChange }: AppSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-3 md:p-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2 p-2 rounded-lg bg-muted">
-            <User className="h-4 w-4 text-primary" />
-            <div className="text-sm">
-              <p className="font-medium">{user?.user_metadata?.full_name || 'المستخدم'}</p>
+            <User className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
+            <div className="text-xs md:text-sm min-w-0">
+              <p className="font-medium truncate">{user?.user_metadata?.full_name || 'المستخدم'}</p>
               <p className="text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
           <Button 
             variant="ghost" 
             onClick={logout}
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 text-xs md:text-sm"
           >
-            <LogOut className="ml-2 h-4 w-4" />
+            <LogOut className="mr-2 h-3 w-3 md:h-4 md:w-4" />
             تسجيل الخروج
           </Button>
         </div>

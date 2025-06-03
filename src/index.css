@@ -109,4 +109,17 @@
   html[dir="rtl"] .rtl\:ml-2 {
     margin-left: 0.5rem;
   }
+
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100vw;
+    }
+  }
+
+  /* RTL sidebar improvements */
+  [dir="rtl"] [data-sidebar="sidebar"] {
+    border-right: none;
+    border-left: 1px solid hsl(var(--sidebar-border));
+  }
 }
