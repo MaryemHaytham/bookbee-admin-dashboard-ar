@@ -1,16 +1,33 @@
-
 import React, { useState, useEffect } from 'react';
-import { apiService, type Product, type Category, type ProductOwner } from '../../services/api';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { toast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Edit, Trash2, Package } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useLocalization } from '@/contexts/LocalizationContext';
+
+interface Product {
+  product_id: string;
+  name: string;
+  sku: string;
+  retail_price: number;
+  category_id: string;
+  product_owner_id: string;
+}
+
+interface Category {
+  category_id: string;
+  name: string;
+}
+
+interface ProductOwner {
+  product_owner_id: string;
+  name: string;
+}
 
 export const ProductsTab: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -20,41 +37,60 @@ export const ProductsTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
-    sku: '',
     name: '',
-    description: '',
+    sku: '',
     retail_price: '',
-    wholesale_price: '',
-    weight: '',
-    visible: true,
-    stock_quantity: '',
-    reserved: '',
-    override_available: false,
     category_id: '',
-    product_owner_id: '',
-    selling_target: '50',
+    product_owner_id: ''
   });
+  const { toast } = useToast();
+  const { t, language } = useLocalization();
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      const [productsData, categoriesData, ownersData] = await Promise.all([
-        apiService.getProducts(),
-        apiService.getCategories(),
-        apiService.getProductOwners(),
+      const [productsResponse, categoriesResponse, productOwnersResponse] = await Promise.all([
+        fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/products?select=*', {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
+          }
+        }),
+        fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/categories?select=*', {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
+          }
+        }),
+        fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/product_owners?select=*', {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
+          }
+        })
       ]);
+
+      if (!productsResponse.ok || !categoriesResponse.ok || !productOwnersResponse.ok) {
+        throw new Error('Failed to load data');
+      }
+
+      const productsData = await productsResponse.json();
+      const categoriesData = await categoriesResponse.json();
+      const productOwnersData = await productOwnersResponse.json();
+
       setProducts(productsData);
       setCategories(categoriesData);
-      setProductOwners(ownersData);
+      setProductOwners(productOwnersData);
     } catch (error) {
+      console.error('Error loading data:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في تحميل البيانات",
-        variant: "destructive",
+        title: t('common.error'),
+        description: t('common.loadError'),
+        variant: 'destructive'
       });
     } finally {
       setIsLoading(false);
@@ -63,310 +99,234 @@ export const ProductsTab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    try {
-      const productData = {
-        p_sku: formData.sku,
-        p_name: formData.name,
-        p_description: formData.description,
-        p_retail_price: parseFloat(formData.retail_price),
-        p_wholesale_price: parseFloat(formData.wholesale_price),
-        p_weight: parseFloat(formData.weight),
-        p_visible: formData.visible,
-        p_stock_quantity: parseInt(formData.stock_quantity),
-        p_reserved: parseInt(formData.reserved),
-        p_override_available: formData.override_available,
-        p_category_id: formData.category_id,
-        p_product_owner_id: formData.product_owner_id,
-        p_selling_target: parseInt(formData.selling_target),
-        p_spec_values: [],
-      };
 
-      await apiService.createOrUpdateProduct(productData);
-      
+    if (!formData.name || !formData.sku || !formData.retail_price || !formData.category_id || !formData.product_owner_id) {
       toast({
-        title: "نجح",
-        description: editingProduct ? "تم تحديث المنتج بنجاح" : "تم إضافة المنتج بنجاح",
+        title: t('common.error'),
+        description: t('common.nameRequired'),
+        variant: 'destructive'
       });
-      
-      setIsDialogOpen(false);
-      resetForm();
-      loadData();
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل في حفظ المنتج",
-        variant: "destructive",
-      });
+      return;
     }
-  };
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-    
+    const productData = {
+      name: formData.name,
+      sku: formData.sku,
+      retail_price: parseFloat(formData.retail_price),
+      category_id: formData.category_id,
+      product_owner_id: formData.product_owner_id
+    };
+
     try {
-      await apiService.deleteProduct(productId);
-      toast({
-        title: "نجح",
-        description: "تم حذف المنتج بنجاح",
-      });
+      setIsLoading(true);
+      let response;
+      if (editingProduct) {
+        // Update existing product
+        response = await fetch(`https://mydaqvcbapralulxsotd.supabase.co/rest/v1/products?product_id=eq.${editingProduct.product_id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(productData)
+        });
+      } else {
+        // Create new product
+        response = await fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(productData)
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to save product');
+      }
+
+      const responseData = await response.json();
+      console.log('Response Data:', responseData);
+
       loadData();
-    } catch (error) {
+      setIsDialogOpen(false);
+      setFormData({ name: '', sku: '', retail_price: '', category_id: '', product_owner_id: '' });
+      setEditingProduct(null);
       toast({
-        title: "خطأ",
-        description: "فشل في حذف المنتج",
-        variant: "destructive",
+        title: t('common.success'),
+        description: t(editingProduct ? 'common.updateSuccess' : 'common.createSuccess'),
       });
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast({
+        title: t('common.error'),
+        description: t(editingProduct ? 'common.updateError' : 'common.createError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     setFormData({
-      sku: product.sku,
       name: product.name,
-      description: product.description,
+      sku: product.sku,
       retail_price: product.retail_price.toString(),
-      wholesale_price: product.wholesale_price.toString(),
-      weight: product.weight.toString(),
-      visible: product.visible,
-      stock_quantity: product.stock.toString(),
-      reserved: product.reserved.toString(),
-      override_available: product.override_available,
       category_id: product.category_id,
-      product_owner_id: product.product_owner_id,
-      selling_target: '50',
+      product_owner_id: product.product_owner_id
     });
     setIsDialogOpen(true);
   };
 
-  const resetForm = () => {
-    setEditingProduct(null);
-    setFormData({
-      sku: '',
-      name: '',
-      description: '',
-      retail_price: '',
-      wholesale_price: '',
-      weight: '',
-      visible: true,
-      stock_quantity: '',
-      reserved: '',
-      override_available: false,
-      category_id: '',
-      product_owner_id: '',
-      selling_target: '50',
-    });
-  };
+  const handleDelete = async (productId: string) => {
+    if (!window.confirm(t('common.confirmDelete'))) {
+      return;
+    }
 
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c.category_id === categoryId);
-    return category?.name || 'غير محدد';
-  };
+    try {
+      setIsLoading(true);
+      const response = await fetch(`https://mydaqvcbapralulxsotd.supabase.co/rest/v1/products?product_id=eq.${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
+        }
+      });
 
-  const getOwnerName = (ownerId: string) => {
-    const owner = productOwners.find(o => o.product_owner_id === ownerId);
-    return owner?.name || 'غير محدد';
-  };
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Package className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">جاري تحميل المنتجات...</p>
-        </div>
-      </div>
-    );
-  }
+      loadData();
+      toast({
+        title: t('common.success'),
+        description: t('common.deleteSuccess'),
+      });
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast({
+        title: t('common.error'),
+        description: t('common.deleteError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">إدارة المنتجات</h2>
-          <p className="text-muted-foreground">إضافة وتعديل وحذف المنتجات</p>
-        </div>
-        
+    <div className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+      <div>
+        <h1 className={`text-3xl font-bold ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+          {t('products.title')}
+        </h1>
+        <p className={`text-muted-foreground mt-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+          {t('products.description')}
+        </p>
+      </div>
+
+      <div className={`flex ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
-              إضافة منتج جديد
+            <Button onClick={() => setEditingProduct(null)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t('products.addNew')}
             </Button>
           </DialogTrigger>
-          
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>
-                  {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
-                </DialogTitle>
-                <DialogDescription>
-                  املأ جميع البيانات المطلوبة للمنتج
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sku">رمز المنتج (SKU)</Label>
-                    <Input
-                      id="sku"
-                      value={formData.sku}
-                      onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="name">اسم المنتج</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      required
-                      className="text-right"
-                      dir="rtl"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="description">وصف المنتج</Label>
-                  <Input
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    required
-                    className="text-right"
-                    dir="rtl"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="retail_price">سعر التجزئة</Label>
-                    <Input
-                      id="retail_price"
-                      type="number"
-                      step="0.01"
-                      value={formData.retail_price}
-                      onChange={(e) => setFormData({...formData, retail_price: e.target.value})}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="wholesale_price">سعر الجملة</Label>
-                    <Input
-                      id="wholesale_price"
-                      type="number"
-                      step="0.01"
-                      value={formData.wholesale_price}
-                      onChange={(e) => setFormData({...formData, wholesale_price: e.target.value})}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="weight">الوزن (كجم)</Label>
-                    <Input
-                      id="weight"
-                      type="number"
-                      step="0.01"
-                      value={formData.weight}
-                      onChange={(e) => setFormData({...formData, weight: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="stock_quantity">الكمية المتاحة</Label>
-                    <Input
-                      id="stock_quantity"
-                      type="number"
-                      value={formData.stock_quantity}
-                      onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="reserved">الكمية المحجوزة</Label>
-                    <Input
-                      id="reserved"
-                      type="number"
-                      value={formData.reserved}
-                      onChange={(e) => setFormData({...formData, reserved: e.target.value})}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category_id">الفئة</Label>
-                    <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر الفئة" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.category_id} value={category.category_id!}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="product_owner_id">مالك المنتج</Label>
-                    <Select value={formData.product_owner_id} onValueChange={(value) => setFormData({...formData, product_owner_id: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر المالك" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {productOwners.map((owner) => (
-                          <SelectItem key={owner.product_owner_id} value={owner.product_owner_id!}>
-                            {owner.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Switch
-                    id="visible"
-                    checked={formData.visible}
-                    onCheckedChange={(checked) => setFormData({...formData, visible: checked})}
-                  />
-                  <Label htmlFor="visible">منتج مرئي</Label>
-                </div>
-                
-                <div className="flex items-center space-x-2 space-x-reverse">
-                  <Switch
-                    id="override_available"
-                    checked={formData.override_available}
-                    onCheckedChange={(checked) => setFormData({...formData, override_available: checked})}
-                  />
-                  <Label htmlFor="override_available">تجاوز حالة التوفر</Label>
-                </div>
+          <DialogContent dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            <DialogHeader>
+              <DialogTitle className={language === 'ar' ? 'text-right' : 'text-left'}>
+                {editingProduct ? t('products.edit') : t('products.add')}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
+                  {t('products.name')}
+                </label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={t('products.enterName')}
+                  required
+                  className={language === 'ar' ? 'text-right' : 'text-left'}
+                />
               </div>
-              
-              <DialogFooter>
+              <div>
+                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
+                  {t('products.sku')}
+                </label>
+                <Input
+                  value={formData.sku}
+                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                  placeholder={t('products.enterSku')}
+                  required
+                  className={language === 'ar' ? 'text-right' : 'text-left'}
+                />
+              </div>
+              <div>
+                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
+                  {t('products.category')}
+                </label>
+                <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('products.selectCategory')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.category_id} value={category.category_id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
+                  {t('products.price')}
+                </label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={formData.retail_price}
+                  onChange={(e) => setFormData({ ...formData, retail_price: e.target.value })}
+                  placeholder={t('products.enterPrice')}
+                  required
+                  className={language === 'ar' ? 'text-right' : 'text-left'}
+                />
+              </div>
+              <div>
+                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
+                  {t('products.owner')}
+                </label>
+                <Select value={formData.product_owner_id} onValueChange={(value) => setFormData({ ...formData, product_owner_id: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('products.selectOwner')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {productOwners.map((owner) => (
+                      <SelectItem key={owner.product_owner_id} value={owner.product_owner_id}>
+                        {owner.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className={`flex gap-2 ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  إلغاء
+                  {t('common.cancel')}
                 </Button>
-                <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingProduct ? 'تحديث' : 'إضافة'}
+                <Button type="submit">
+                  {editingProduct ? t('common.update') : t('common.save')}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </DialogContent>
         </Dialog>
@@ -374,59 +334,46 @@ export const ProductsTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>قائمة المنتجات</CardTitle>
-          <CardDescription>
-            عدد المنتجات: {products.length}
-          </CardDescription>
+          <CardTitle className={`flex items-center gap-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            <Package className="h-5 w-5" />
+            {t('products.list')} ({products.length} {t('products.count')})
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          {isLoading ? (
+            <div className="text-center py-4">{t('common.loading')}</div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">رمز المنتج</TableHead>
-                  <TableHead className="text-right">الاسم</TableHead>
-                  <TableHead className="text-right">الفئة</TableHead>
-                  <TableHead className="text-right">المالك</TableHead>
-                  <TableHead className="text-right">سعر التجزئة</TableHead>
-                  <TableHead className="text-right">الكمية</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.name')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.sku')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.price')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.owner')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product.product_id}>
-                    <TableCell className="font-mono">{product.sku}</TableCell>
-                    <TableCell className="text-right">{product.name}</TableCell>
-                    <TableCell className="text-right">{getCategoryName(product.category_id)}</TableCell>
-                    <TableCell className="text-right">{getOwnerName(product.product_owner_id)}</TableCell>
-                    <TableCell>{product.retail_price} ج.م</TableCell>
-                    <TableCell>{product.stock}</TableCell>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>{product.sku}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                        product.visible && product.available 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.visible && product.available ? 'متاح' : 'غير متاح'}
-                      </span>
+                      <Badge variant="secondary">
+                        {categories.find(c => c.category_id === product.category_id)?.name || t('common.notSpecified')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{product.retail_price} {t('common.currency')}</TableCell>
+                    <TableCell>
+                      {productOwners.find(o => o.product_owner_id === product.product_owner_id)?.name || t('common.notSpecified')}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(product)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(product)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(product.product_id!)}
-                          className="text-red-600 hover:text-red-700"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(product.product_id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -435,7 +382,7 @@ export const ProductsTab: React.FC = () => {
                 ))}
               </TableBody>
             </Table>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
