@@ -1,27 +1,15 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { apiService, type CategorySpec, type Category } from '../../services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Settings } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useLocalization } from '@/contexts/LocalizationContext';
-
-interface CategorySpec {
-  category_spec_id: string;
-  name: string;
-  category_id: string;
-  type: string;
-  created_at: string;
-}
-
-interface Category {
-  category_id: string;
-  name: string;
-}
 
 export const CategorySpecsTab: React.FC = () => {
   const [categorySpecs, setCategorySpecs] = useState<CategorySpec[]>([]);
@@ -32,48 +20,26 @@ export const CategorySpecsTab: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     category_id: '',
-    type: ''
   });
-  const { toast } = useToast();
-  const { t, language } = useLocalization();
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    setIsLoading(true);
     try {
-      const [specsResponse, categoriesResponse] = await Promise.all([
-        fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/category_specs?select=*', {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
-          }
-        }),
-        fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/categories?select=*', {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
-          }
-        })
+      setIsLoading(true);
+      const [specsData, categoriesData] = await Promise.all([
+        apiService.getCategorySpecs(),
+        apiService.getCategories(),
       ]);
-
-      if (!specsResponse.ok || !categoriesResponse.ok) {
-        throw new Error('Failed to load data');
-      }
-
-      const specsData = await specsResponse.json();
-      const categoriesData = await categoriesResponse.json();
-
       setCategorySpecs(specsData);
       setCategories(categoriesData);
     } catch (error) {
-      console.error('Error loading data:', error);
       toast({
-        title: t('common.error'),
-        description: t('common.loadError'),
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في تحميل البيانات",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -82,77 +48,58 @@ export const CategorySpecsTab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name) {
+    
+    if (!formData.name.trim() || !formData.category_id) {
       toast({
-        title: t('common.error'),
-        description: t('common.nameRequired'),
-        variant: 'destructive'
+        title: "خطأ",
+        description: "يرجى ملء جميع البيانات المطلوبة",
+        variant: "destructive",
       });
       return;
     }
 
     try {
-      const payload = {
-        name: formData.name,
-        category_id: formData.category_id,
-        type: formData.type
-      };
-
-      let response;
       if (editingSpec) {
-        // Update existing spec
-        response = await fetch(`https://mydaqvcbapralulxsotd.supabase.co/rest/v1/category_specs?category_spec_id=eq.${editingSpec.category_spec_id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify(payload)
+        await apiService.updateCategorySpec(editingSpec.name, formData.name);
+        toast({
+          title: "نجح",
+          description: "تم تحديث المواصفة بنجاح",
         });
       } else {
-        // Create new spec
-        response = await fetch('https://mydaqvcbapralulxsotd.supabase.co/rest/v1/category_specs', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-            'Prefer': 'return=representation'
-          },
-          body: JSON.stringify(payload)
-        });
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to save category spec');
-      }
-
-      const data = await response.json();
-      if (editingSpec) {
+        await apiService.createCategorySpec(formData.category_id, formData.name);
         toast({
-          title: t('common.success'),
-          description: t('common.updateSuccess')
-        });
-      } else {
-        toast({
-          title: t('common.success'),
-          description: t('common.createSuccess')
+          title: "نجح",
+          description: "تم إضافة المواصفة بنجاح",
         });
       }
-
-      loadData();
+      
       setIsDialogOpen(false);
-      setFormData({ name: '', category_id: '', type: '' });
-      setEditingSpec(null);
+      resetForm();
+      loadData();
     } catch (error) {
-      console.error('Error saving category spec:', error);
       toast({
-        title: t('common.error'),
-        description: editingSpec ? t('common.updateError') : t('common.createError'),
-        variant: 'destructive'
+        title: "خطأ",
+        description: "فشل في حفظ المواصفة",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDelete = async (specName: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذه المواصفة؟')) return;
+    
+    try {
+      await apiService.deleteCategorySpec(specName);
+      toast({
+        title: "نجح",
+        description: "تم حذف المواصفة بنجاح",
+      });
+      loadData();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في حذف المواصفة",
+        variant: "destructive",
       });
     }
   };
@@ -162,122 +109,104 @@ export const CategorySpecsTab: React.FC = () => {
     setFormData({
       name: spec.name,
       category_id: spec.category_id,
-      type: spec.type
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm(t('common.confirmDelete'))) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`https://mydaqvcbapralulxsotd.supabase.co/rest/v1/category_specs?category_spec_id=eq.${id}`, {
-        method: 'DELETE',
-        headers: {
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete category spec');
-      }
-
-      toast({
-        title: t('common.success'),
-        description: t('common.deleteSuccess')
-      });
-      loadData();
-    } catch (error) {
-      console.error('Error deleting category spec:', error);
-      toast({
-        title: t('common.error'),
-        description: t('common.deleteError'),
-        variant: 'destructive'
-      });
-    }
+  const resetForm = () => {
+    setEditingSpec(null);
+    setFormData({
+      name: '',
+      category_id: '',
+    });
   };
 
-  return (
-    <div className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <div>
-        <h1 className={`text-3xl font-bold ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-          {t('categorySpecs.title')}
-        </h1>
-        <p className={`text-muted-foreground mt-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-          {t('categorySpecs.description')}
-        </p>
-      </div>
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(c => c.category_id === categoryId);
+    return category?.name || 'غير محدد';
+  };
 
-      <div className={`flex ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Settings className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">جاري تحميل مواصفات الفئات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">إدارة مواصفات الفئات</h2>
+          <p className="text-muted-foreground">إضافة وتعديل وحذف مواصفات فئات المنتجات</p>
+        </div>
+        
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingSpec(null)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {t('categorySpecs.addNew')}
+            <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
+              <Plus className="mr-2 h-4 w-4" />
+              إضافة مواصفة جديدة
             </Button>
           </DialogTrigger>
-          <DialogContent dir={language === 'ar' ? 'rtl' : 'ltr'}>
-            <DialogHeader>
-              <DialogTitle className={language === 'ar' ? 'text-right' : 'text-left'}>
-                {editingSpec ? t('categorySpecs.edit') : t('categorySpecs.add')}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
-                  {t('categorySpecs.name')}
-                </label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={t('categorySpecs.enterName')}
-                  required
-                  className={language === 'ar' ? 'text-right' : 'text-left'}
-                />
+          
+          <DialogContent>
+            <form onSubmit={handleSubmit}>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingSpec ? 'تعديل المواصفة' : 'إضافة مواصفة جديدة'}
+                </DialogTitle>
+                <DialogDescription>
+                  أدخل بيانات المواصفة الجديدة
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="category_id">الفئة</Label>
+                  <Select 
+                    value={formData.category_id} 
+                    onValueChange={(value) => setFormData({...formData, category_id: value})}
+                    disabled={!!editingSpec}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.category_id} value={category.category_id!}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="specName">اسم المواصفة</Label>
+                  <Input
+                    id="specName"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="مثال: اللون"
+                    required
+                    className="text-right"
+                    dir="rtl"
+                  />
+                </div>
               </div>
-              <div>
-                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
-                  {t('categorySpecs.category')}
-                </label>
-                <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('categorySpecs.selectCategory')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.category_id} value={category.category_id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className={`text-sm font-medium ${language === 'ar' ? 'text-right' : 'text-left'} block mb-1`}>
-                  {t('categorySpecs.type')}
-                </label>
-                <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('categorySpecs.selectType')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="string">String</SelectItem>
-                    <SelectItem value="number">Number</SelectItem>
-                    <SelectItem value="boolean">Boolean</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className={`flex gap-2 ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
+              
+              <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  {t('common.cancel')}
+                  إلغاء
                 </Button>
-                <Button type="submit">
-                  {editingSpec ? t('common.update') : t('common.save')}
+                <Button type="submit" className="bg-primary hover:bg-primary/90">
+                  {editingSpec ? 'تحديث' : 'إضافة'}
                 </Button>
-              </div>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
@@ -285,53 +214,48 @@ export const CategorySpecsTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className={`flex items-center gap-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            <Settings className="h-5 w-5" />
-            {t('categorySpecs.list')} ({categorySpecs.length} {t('categorySpecs.count')})
-          </CardTitle>
+          <CardTitle>قائمة مواصفات الفئات</CardTitle>
+          <CardDescription>
+            عدد المواصفات: {categorySpecs.length}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-center py-4">{t('common.loading')}</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categorySpecs.name')}</TableHead>
-                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categorySpecs.category')}</TableHead>
-                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categorySpecs.type')}</TableHead>
-                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categorySpecs.createdAt')}</TableHead>
-                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categorySpecs.actions')}</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-right">اسم المواصفة</TableHead>
+                <TableHead className="text-right">الفئة</TableHead>
+                <TableHead className="text-right">الإجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categorySpecs.map((spec) => (
+                <TableRow key={spec.category_spec_id}>
+                  <TableCell className="text-right font-medium">{spec.name}</TableCell>
+                  <TableCell className="text-right">{getCategoryName(spec.category_id)}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(spec)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(spec.name)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categorySpecs.map((spec) => (
-                  <TableRow key={spec.category_spec_id}>
-                    <TableCell className="font-medium">{spec.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {categories.find(c => c.category_id === spec.category_id)?.name || t('common.notSpecified')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{spec.type}</Badge>
-                    </TableCell>
-                    <TableCell>{new Date(spec.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(spec)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(spec.category_spec_id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

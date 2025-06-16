@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Tag } from 'lucide-react';
-import { useLocalization } from '@/contexts/LocalizationContext';
 
 export const CategoriesTab: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -17,7 +16,6 @@ export const CategoriesTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categoryName, setCategoryName] = useState('');
-  const { t, language } = useLocalization();
 
   useEffect(() => {
     loadCategories();
@@ -30,8 +28,8 @@ export const CategoriesTab: React.FC = () => {
       setCategories(data);
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: t('common.loadError'),
+        title: "خطأ",
+        description: "فشل في تحميل الفئات",
         variant: "destructive",
       });
     } finally {
@@ -44,8 +42,8 @@ export const CategoriesTab: React.FC = () => {
     
     if (!categoryName.trim()) {
       toast({
-        title: t('common.error'),
-        description: t('common.nameRequired'),
+        title: "خطأ",
+        description: "يرجى إدخال اسم الفئة",
         variant: "destructive",
       });
       return;
@@ -55,14 +53,14 @@ export const CategoriesTab: React.FC = () => {
       if (editingCategory) {
         await apiService.updateCategory(editingCategory.name, categoryName);
         toast({
-          title: t('common.success'),
-          description: t('common.updateSuccess'),
+          title: "نجح",
+          description: "تم تحديث الفئة بنجاح",
         });
       } else {
         await apiService.createCategory(categoryName);
         toast({
-          title: t('common.success'),
-          description: t('common.createSuccess'),
+          title: "نجح",
+          description: "تم إضافة الفئة بنجاح",
         });
       }
       
@@ -72,27 +70,27 @@ export const CategoriesTab: React.FC = () => {
       loadCategories();
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: editingCategory ? t('common.updateError') : t('common.createError'),
+        title: "خطأ",
+        description: "فشل في حفظ الفئة",
         variant: "destructive",
       });
     }
   };
 
   const handleDelete = async (categoryName: string) => {
-    if (!confirm(t('common.confirmDelete'))) return;
+    if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) return;
     
     try {
       await apiService.deleteCategory(categoryName);
       toast({
-        title: t('common.success'),
-        description: t('common.deleteSuccess'),
+        title: "نجح",
+        description: "تم حذف الفئة بنجاح",
       });
       loadCategories();
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: t('common.deleteError'),
+        title: "خطأ",
+        description: "فشل في حذف الفئة",
         variant: "destructive",
       });
     }
@@ -114,7 +112,7 @@ export const CategoriesTab: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Tag className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">{t('common.loading')}</p>
+          <p className="text-muted-foreground">جاري تحميل الفئات...</p>
         </div>
       </div>
     );
@@ -123,16 +121,16 @@ export const CategoriesTab: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div className={language === 'ar' ? 'text-right' : 'text-left'}>
-          <h2 className="text-3xl font-bold text-gray-900">{t('categories.title')}</h2>
-          <p className="text-muted-foreground">{t('categories.description')}</p>
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">إدارة الفئات</h2>
+          <p className="text-muted-foreground">إضافة وتعديل وحذف فئات المنتجات</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
               <Plus className="mr-2 h-4 w-4" />
-              {t('categories.addNew')}
+              إضافة فئة جديدة
             </Button>
           </DialogTrigger>
           
@@ -140,34 +138,34 @@ export const CategoriesTab: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>
-                  {editingCategory ? t('categories.edit') : t('categories.add')}
+                  {editingCategory ? 'تعديل الفئة' : 'إضافة فئة جديدة'}
                 </DialogTitle>
                 <DialogDescription>
-                  {t('categories.enterName')}
+                  أدخل اسم الفئة الجديدة
                 </DialogDescription>
               </DialogHeader>
               
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="categoryName">{t('categories.name')}</Label>
+                  <Label htmlFor="categoryName">اسم الفئة</Label>
                   <Input
                     id="categoryName"
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    placeholder={t('categories.placeholder')}
+                    placeholder="مثال: إلكترونيات"
                     required
-                    className={language === 'ar' ? 'text-right' : 'text-left'}
-                    dir={language === 'ar' ? 'rtl' : 'ltr'}
+                    className="text-right"
+                    dir="rtl"
                   />
                 </div>
               </div>
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  {t('common.cancel')}
+                  إلغاء
                 </Button>
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingCategory ? t('common.update') : t('common.add')}
+                  {editingCategory ? 'تحديث' : 'إضافة'}
                 </Button>
               </DialogFooter>
             </form>
@@ -177,26 +175,26 @@ export const CategoriesTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categories.list')}</CardTitle>
-          <CardDescription className={language === 'ar' ? 'text-right' : 'text-left'}>
-            {t('categories.count')}: {categories.length}
+          <CardTitle>قائمة الفئات</CardTitle>
+          <CardDescription>
+            عدد الفئات: {categories.length}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categories.name')}</TableHead>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categories.createdAt')}</TableHead>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('categories.actions')}</TableHead>
+                <TableHead className="text-right">اسم الفئة</TableHead>
+                <TableHead className="text-right">تاريخ الإنشاء</TableHead>
+                <TableHead className="text-right">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {categories.map((category) => (
                 <TableRow key={category.category_id}>
-                  <TableCell className={`${language === 'ar' ? 'text-right' : 'text-left'} font-medium`}>{category.name}</TableCell>
-                  <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>
-                    {category.created_at ? new Date(category.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : t('common.notSpecified')}
+                  <TableCell className="text-right font-medium">{category.name}</TableCell>
+                  <TableCell className="text-right">
+                    {category.created_at ? new Date(category.created_at).toLocaleDateString('ar-EG') : 'غير محدد'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

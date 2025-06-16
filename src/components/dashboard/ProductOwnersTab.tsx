@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Users } from 'lucide-react';
-import { useLocalization } from '@/contexts/LocalizationContext';
 
 export const ProductOwnersTab: React.FC = () => {
   const [productOwners, setProductOwners] = useState<ProductOwner[]>([]);
@@ -17,7 +16,6 @@ export const ProductOwnersTab: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOwner, setEditingOwner] = useState<ProductOwner | null>(null);
   const [ownerName, setOwnerName] = useState('');
-  const { t, language } = useLocalization();
 
   useEffect(() => {
     loadProductOwners();
@@ -30,8 +28,8 @@ export const ProductOwnersTab: React.FC = () => {
       setProductOwners(data);
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: t('common.loadError'),
+        title: "خطأ",
+        description: "فشل في تحميل مالكي المنتجات",
         variant: "destructive",
       });
     } finally {
@@ -44,8 +42,8 @@ export const ProductOwnersTab: React.FC = () => {
     
     if (!ownerName.trim()) {
       toast({
-        title: t('common.error'),
-        description: t('common.nameRequired'),
+        title: "خطأ",
+        description: "يرجى إدخال اسم المالك",
         variant: "destructive",
       });
       return;
@@ -55,14 +53,14 @@ export const ProductOwnersTab: React.FC = () => {
       if (editingOwner) {
         await apiService.updateProductOwner(editingOwner.name, ownerName);
         toast({
-          title: t('common.success'),
-          description: t('common.updateSuccess'),
+          title: "نجح",
+          description: "تم تحديث مالك المنتج بنجاح",
         });
       } else {
         await apiService.createProductOwner(ownerName);
         toast({
-          title: t('common.success'),
-          description: t('common.createSuccess'),
+          title: "نجح",
+          description: "تم إضافة مالك المنتج بنجاح",
         });
       }
       
@@ -72,27 +70,27 @@ export const ProductOwnersTab: React.FC = () => {
       loadProductOwners();
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: editingOwner ? t('common.updateError') : t('common.createError'),
+        title: "خطأ",
+        description: "فشل في حفظ مالك المنتج",
         variant: "destructive",
       });
     }
   };
 
   const handleDelete = async (ownerName: string) => {
-    if (!confirm(t('common.confirmDelete'))) return;
+    if (!confirm('هل أنت متأكد من حذف هذا المالك؟')) return;
     
     try {
       await apiService.deleteProductOwner(ownerName);
       toast({
-        title: t('common.success'),
-        description: t('common.deleteSuccess'),
+        title: "نجح",
+        description: "تم حذف مالك المنتج بنجاح",
       });
       loadProductOwners();
     } catch (error) {
       toast({
-        title: t('common.error'),
-        description: t('common.deleteError'),
+        title: "خطأ",
+        description: "فشل في حذف مالك المنتج",
         variant: "destructive",
       });
     }
@@ -114,7 +112,7 @@ export const ProductOwnersTab: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Users className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">{t('common.loading')}</p>
+          <p className="text-muted-foreground">جاري تحميل مالكي المنتجات...</p>
         </div>
       </div>
     );
@@ -123,16 +121,16 @@ export const ProductOwnersTab: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div className={language === 'ar' ? 'text-right' : 'text-left'}>
-          <h2 className="text-3xl font-bold text-gray-900">{t('productOwners.title')}</h2>
-          <p className="text-muted-foreground">{t('productOwners.description')}</p>
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">إدارة مالكي المنتجات</h2>
+          <p className="text-muted-foreground">إضافة وتعديل وحذف مالكي المنتجات</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
               <Plus className="mr-2 h-4 w-4" />
-              {t('productOwners.addNew')}
+              إضافة مالك جديد
             </Button>
           </DialogTrigger>
           
@@ -140,34 +138,34 @@ export const ProductOwnersTab: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>
-                  {editingOwner ? t('productOwners.edit') : t('productOwners.add')}
+                  {editingOwner ? 'تعديل مالك المنتج' : 'إضافة مالك جديد'}
                 </DialogTitle>
                 <DialogDescription>
-                  {t('productOwners.enterName')}
+                  أدخل اسم مالك المنتج
                 </DialogDescription>
               </DialogHeader>
               
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="ownerName">{t('productOwners.name')}</Label>
+                  <Label htmlFor="ownerName">اسم المالك</Label>
                   <Input
                     id="ownerName"
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
-                    placeholder={t('productOwners.placeholder')}
+                    placeholder="مثال: خالد صقر"
                     required
-                    className={language === 'ar' ? 'text-right' : 'text-left'}
-                    dir={language === 'ar' ? 'rtl' : 'ltr'}
+                    className="text-right"
+                    dir="rtl"
                   />
                 </div>
               </div>
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  {t('common.cancel')}
+                  إلغاء
                 </Button>
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingOwner ? t('common.update') : t('common.add')}
+                  {editingOwner ? 'تحديث' : 'إضافة'}
                 </Button>
               </DialogFooter>
             </form>
@@ -177,26 +175,26 @@ export const ProductOwnersTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className={language === 'ar' ? 'text-right' : 'text-left'}>{t('productOwners.list')}</CardTitle>
-          <CardDescription className={language === 'ar' ? 'text-right' : 'text-left'}>
-            {t('productOwners.count')}: {productOwners.length}
+          <CardTitle>قائمة مالكي المنتجات</CardTitle>
+          <CardDescription>
+            عدد المالكين: {productOwners.length}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('productOwners.name')}</TableHead>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('productOwners.createdAt')}</TableHead>
-                <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('productOwners.actions')}</TableHead>
+                <TableHead className="text-right">اسم المالك</TableHead>
+                <TableHead className="text-right">تاريخ الإنشاء</TableHead>
+                <TableHead className="text-right">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {productOwners.map((owner) => (
                 <TableRow key={owner.product_owner_id}>
-                  <TableCell className={`${language === 'ar' ? 'text-right' : 'text-left'} font-medium`}>{owner.name}</TableCell>
-                  <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>
-                    {owner.created_at ? new Date(owner.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US') : t('common.notSpecified')}
+                  <TableCell className="text-right font-medium">{owner.name}</TableCell>
+                  <TableCell className="text-right">
+                    {owner.created_at ? new Date(owner.created_at).toLocaleDateString('ar-EG') : 'غير محدد'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">

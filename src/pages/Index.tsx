@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
-import { LocalizationProvider, useLocalization } from '../contexts/LocalizationContext';
+import { useLocalization } from '../contexts/LocalizationContext';
 import { LoginForm } from '../components/auth/LoginForm';
 import { Dashboard } from '../components/dashboard/Dashboard';
 
@@ -35,13 +35,11 @@ const AppContent: React.FC = () => {
 
 const Index = () => {
   return (
-    <LocalizationProvider>
-      <AuthProvider>
-        <div className="font-arabic">
-          <AppContent />
-        </div>
-      </AuthProvider>
-    </LocalizationProvider>
+    <AuthProvider>
+      <div className="font-arabic">
+        <AppContent />
+      </div>
+    </AuthProvider>
   );
 };
 

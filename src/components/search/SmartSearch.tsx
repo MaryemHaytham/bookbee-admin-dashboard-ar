@@ -28,9 +28,25 @@ export const SmartSearch: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { t, language } = useLocalization();
+  const { t } = useLocalization();
 
   const searchOptions: SearchOption[] = [
+    {
+      field: 'select',
+      label: t('field.select'),
+      type: 'array',
+      operators: [
+        { value: '=', label: t('operator.equals') }
+      ]
+    },
+    {
+      field: 'order',
+      label: t('field.order'),
+      type: 'array',
+      operators: [
+        { value: '=', label: t('operator.equals') }
+      ]
+    },
     {
       field: 'user_id',
       label: t('field.userId'),
@@ -103,13 +119,16 @@ export const SmartSearch: React.FC = () => {
     try {
       const queryParams = new URLSearchParams();
       
-      // Add select parameter to get related data
+      // Add expand parameters to get related data
       queryParams.append('select', '*,user_profiles_user(*),order_shipment(*,shipment_products(*,product(*,category(*))),shipping_providers(*)),order_payment(*),order_products(*,product(*,category(*))),refunds(*)');
       
-      // Add search parameters
       searchParams.forEach(param => {
         if (param.field && param.operator && param.value) {
-          queryParams.append(param.field, `${param.operator}.${param.value}`);
+          if (param.field === 'select' || param.field === 'order') {
+            queryParams.append(param.field, param.value);
+          } else {
+            queryParams.append(param.field, `${param.operator}.${param.value}`);
+          }
         }
       });
 
@@ -119,7 +138,7 @@ export const SmartSearch: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
 
@@ -153,10 +172,10 @@ export const SmartSearch: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className={`flex items-center gap-2 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+          <CardTitle className="text-right flex items-center gap-2">
             <Search className="h-5 w-5" />
             {t('search.title')}
           </CardTitle>
@@ -165,16 +184,10 @@ export const SmartSearch: React.FC = () => {
           {searchParams.map((param) => (
             <div key={param.id} className="flex gap-2 items-end">
               <div className="flex-1">
-                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  {t('search.field')}
-                </label>
+                <label className="text-sm font-medium mb-1 block text-right">{t('search.field')}</label>
                 <Select
                   value={param.field}
-                  onValueChange={(value) => {
-                    updateSearchParam(param.id, 'field', value);
-                    // Reset operator when field changes
-                    updateSearchParam(param.id, 'operator', '');
-                  }}
+                  onValueChange={(value) => updateSearchParam(param.id, 'field', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={t('search.selectField')} />
@@ -190,9 +203,7 @@ export const SmartSearch: React.FC = () => {
               </div>
 
               <div className="flex-1">
-                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  {t('search.operator')}
-                </label>
+                <label className="text-sm font-medium mb-1 block text-right">{t('search.operator')}</label>
                 <Select
                   value={param.operator}
                   onValueChange={(value) => updateSearchParam(param.id, 'operator', value)}
@@ -212,14 +223,12 @@ export const SmartSearch: React.FC = () => {
               </div>
 
               <div className="flex-1">
-                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-                  {t('search.value')}
-                </label>
+                <label className="text-sm font-medium mb-1 block text-right">{t('search.value')}</label>
                 <Input
                   value={param.value}
                   onChange={(e) => updateSearchParam(param.id, 'value', e.target.value)}
                   placeholder={t('search.enterValue')}
-                  className={language === 'ar' ? 'text-right' : 'text-left'}
+                  className="text-right"
                 />
               </div>
 
@@ -234,7 +243,7 @@ export const SmartSearch: React.FC = () => {
             </div>
           ))}
 
-          <div className={`flex gap-2 ${language === 'ar' ? 'justify-start' : 'justify-end'}`}>
+          <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={addSearchParam}>
               <Plus className="h-4 w-4 mr-2" />
               {t('search.addCriteria')}
