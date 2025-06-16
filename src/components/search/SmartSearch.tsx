@@ -32,22 +32,6 @@ export const SmartSearch: React.FC = () => {
 
   const searchOptions: SearchOption[] = [
     {
-      field: 'select',
-      label: t('field.select'),
-      type: 'array',
-      operators: [
-        { value: '=', label: t('operator.equals') }
-      ]
-    },
-    {
-      field: 'order',
-      label: t('field.order'),
-      type: 'array',
-      operators: [
-        { value: '=', label: t('operator.equals') }
-      ]
-    },
-    {
       field: 'user_id',
       label: t('field.userId'),
       type: 'string',
@@ -119,16 +103,13 @@ export const SmartSearch: React.FC = () => {
     try {
       const queryParams = new URLSearchParams();
       
-      // Add expand parameters to get related data
+      // Add select parameter to get related data
       queryParams.append('select', '*,user_profiles_user(*),order_shipment(*,shipment_products(*,product(*,category(*))),shipping_providers(*)),order_payment(*),order_products(*,product(*,category(*))),refunds(*)');
       
+      // Add search parameters
       searchParams.forEach(param => {
         if (param.field && param.operator && param.value) {
-          if (param.field === 'select' || param.field === 'order') {
-            queryParams.append(param.field, param.value);
-          } else {
-            queryParams.append(param.field, `${param.operator}.${param.value}`);
-          }
+          queryParams.append(param.field, `${param.operator}.${param.value}`);
         }
       });
 
@@ -138,7 +119,7 @@ export const SmartSearch: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc`
         }
       });
 
@@ -187,7 +168,11 @@ export const SmartSearch: React.FC = () => {
                 <label className="text-sm font-medium mb-1 block text-right">{t('search.field')}</label>
                 <Select
                   value={param.field}
-                  onValueChange={(value) => updateSearchParam(param.id, 'field', value)}
+                  onValueChange={(value) => {
+                    updateSearchParam(param.id, 'field', value);
+                    // Reset operator when field changes
+                    updateSearchParam(param.id, 'operator', '');
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder={t('search.selectField')} />
