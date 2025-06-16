@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Package, CreditCard, Truck, RotateCcw } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useLocalization } from '@/contexts/LocalizationContext';
 
 interface Order {
   order_id: string;
@@ -31,6 +32,7 @@ interface SearchResultsProps {
 
 export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const { t, language } = useLocalization();
 
   const toggleOrderExpansion = (orderId: string) => {
     const newExpanded = new Set(expandedOrders);
@@ -54,7 +56,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-EG', {
+    const locale = language === 'ar' ? 'ar-EG' : 'en-US';
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -63,10 +66,22 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
     });
   };
 
+  if (!orders || orders.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-right">{t('search.noResults')}</CardTitle>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-right">نتائج البحث ({orders.length} طلب)</CardTitle>
+        <CardTitle className="text-right">
+          {t('search.results')} ({orders.length} {t('order.number')})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -97,10 +112,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                           <Badge className={getStatusColor(order.status)}>
                             {order.status}
                           </Badge>
-                          <span className="font-semibold">{order.total_amount} ج.م</span>
+                          <span className="font-semibold">
+                            {order.total_amount} {t('common.currency')}
+                          </span>
                         </div>
                         <p className="text-sm text-gray-600">
-                          {order.user_profiles_user?.full_name || 'غير محدد'}
+                          {order.user_profiles_user?.full_name || t('search.noResults')}
                         </p>
                       </div>
                     </div>
@@ -110,12 +127,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                 <CollapsibleContent>
                   <div className="px-4 pb-4 space-y-4">
                     {/* Order Products */}
-                    {order.order_products.length > 0 && (
+                    {order.order_products && order.order_products.length > 0 && (
                       <Card>
                         <CardHeader className="pb-3">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Package className="h-5 w-5" />
-                            المنتجات ({order.order_products.length})
+                            {t('order.products')} ({order.order_products.length})
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -134,14 +151,16 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                                 <TableRow key={index}>
                                   <TableCell>
                                     <div>
-                                      <p className="font-medium">{item.product?.name}</p>
-                                      <p className="text-sm text-gray-600">{item.product?.sku}</p>
+                                      <p className="font-medium">{item.product?.name || 'N/A'}</p>
+                                      <p className="text-sm text-gray-600">{item.product?.sku || 'N/A'}</p>
                                     </div>
                                   </TableCell>
-                                  <TableCell>{item.product?.category?.name}</TableCell>
-                                  <TableCell>{item.quantity}</TableCell>
-                                  <TableCell>{item.retail_price} ج.م</TableCell>
-                                  <TableCell>{(item.quantity * item.retail_price).toFixed(2)} ج.م</TableCell>
+                                  <TableCell>{item.product?.category?.name || 'N/A'}</TableCell>
+                                  <TableCell>{item.quantity || 0}</TableCell>
+                                  <TableCell>{item.retail_price || 0} {t('common.currency')}</TableCell>
+                                  <TableCell>
+                                    {((item.quantity || 0) * (item.retail_price || 0)).toFixed(2)} {t('common.currency')}
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -151,12 +170,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                     )}
 
                     {/* Order Shipments */}
-                    {order.order_shipment.length > 0 && (
+                    {order.order_shipment && order.order_shipment.length > 0 && (
                       <Card>
                         <CardHeader className="pb-3">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <Truck className="h-5 w-5" />
-                            الشحنات ({order.order_shipment.length})
+                            {t('order.shipments')} ({order.order_shipment.length})
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -165,24 +184,24 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                                 <div>
                                   <label className="text-sm font-medium text-gray-600">رقم الشحنة</label>
-                                  <p className="text-sm">{shipment.number}</p>
+                                  <p className="text-sm">{shipment.number || 'N/A'}</p>
                                 </div>
                                 <div>
                                   <label className="text-sm font-medium text-gray-600">الخدمة</label>
-                                  <p className="text-sm">{shipment.service}</p>
+                                  <p className="text-sm">{shipment.service || 'N/A'}</p>
                                 </div>
                                 <div>
                                   <label className="text-sm font-medium text-gray-600">شركة الشحن</label>
-                                  <p className="text-sm">{shipment.shipping_providers?.name}</p>
+                                  <p className="text-sm">{shipment.shipping_providers?.name || 'N/A'}</p>
                                 </div>
                                 <div>
                                   <label className="text-sm font-medium text-gray-600">تاريخ الإنشاء</label>
-                                  <p className="text-sm">{formatDate(shipment.created_at)}</p>
+                                  <p className="text-sm">{shipment.created_at ? formatDate(shipment.created_at) : 'N/A'}</p>
                                 </div>
                               </div>
 
                               {/* Shipment Products */}
-                              {shipment.shipment_products?.length > 0 && (
+                              {shipment.shipment_products && shipment.shipment_products.length > 0 && (
                                 <div>
                                   <h4 className="font-medium mb-2">منتجات الشحنة:</h4>
                                   <Table>
@@ -198,12 +217,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                                         <TableRow key={itemIndex}>
                                           <TableCell>
                                             <div>
-                                              <p className="font-medium">{item.product?.name}</p>
-                                              <p className="text-sm text-gray-600">{item.product?.sku}</p>
+                                              <p className="font-medium">{item.product?.name || 'N/A'}</p>
+                                              <p className="text-sm text-gray-600">{item.product?.sku || 'N/A'}</p>
                                             </div>
                                           </TableCell>
-                                          <TableCell>{item.quantity}</TableCell>
-                                          <TableCell>{item.product?.retail_price} ج.م</TableCell>
+                                          <TableCell>{item.quantity || 0}</TableCell>
+                                          <TableCell>{item.product?.retail_price || 0} {t('common.currency')}</TableCell>
                                         </TableRow>
                                       ))}
                                     </TableBody>
@@ -217,12 +236,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                     )}
 
                     {/* Order Payments */}
-                    {order.order_payment.length > 0 && (
+                    {order.order_payment && order.order_payment.length > 0 && (
                       <Card>
                         <CardHeader className="pb-3">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <CreditCard className="h-5 w-5" />
-                            المدفوعات ({order.order_payment.length})
+                            {t('order.payments')} ({order.order_payment.length})
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -238,14 +257,14 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                             <TableBody>
                               {order.order_payment.map((payment, index) => (
                                 <TableRow key={index}>
-                                  <TableCell>{payment.amount} ج.م</TableCell>
-                                  <TableCell>{payment.method}</TableCell>
+                                  <TableCell>{payment.amount || 0} {t('common.currency')}</TableCell>
+                                  <TableCell>{payment.method || 'N/A'}</TableCell>
                                   <TableCell>
                                     <Badge className={getStatusColor(payment.status)}>
-                                      {payment.status}
+                                      {payment.status || 'N/A'}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell>{formatDate(payment.created_at)}</TableCell>
+                                  <TableCell>{payment.created_at ? formatDate(payment.created_at) : 'N/A'}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -255,12 +274,12 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                     )}
 
                     {/* Refunds */}
-                    {order.refunds.length > 0 && (
+                    {order.refunds && order.refunds.length > 0 && (
                       <Card>
                         <CardHeader className="pb-3">
                           <CardTitle className="text-lg flex items-center gap-2">
                             <RotateCcw className="h-5 w-5" />
-                            المرتجعات ({order.refunds.length})
+                            {t('order.refunds')} ({order.refunds.length})
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -276,14 +295,14 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ orders }) => {
                             <TableBody>
                               {order.refunds.map((refund, index) => (
                                 <TableRow key={index}>
-                                  <TableCell>{refund.amount} ج.م</TableCell>
-                                  <TableCell>{refund.reason}</TableCell>
+                                  <TableCell>{refund.amount || 0} {t('common.currency')}</TableCell>
+                                  <TableCell>{refund.reason || 'N/A'}</TableCell>
                                   <TableCell>
                                     <Badge className={getStatusColor(refund.status)}>
-                                      {refund.status}
+                                      {refund.status || 'N/A'}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell>{formatDate(refund.created_at)}</TableCell>
+                                  <TableCell>{refund.created_at ? formatDate(refund.created_at) : 'N/A'}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>

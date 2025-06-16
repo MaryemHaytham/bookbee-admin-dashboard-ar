@@ -3,98 +3,84 @@ import React from 'react';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
-  SidebarFooter,
   SidebarMenu,
-  SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
-import { 
-  Package, 
-  Tag, 
-  Settings, 
-  Users, 
-  BookOpen,
-  LogOut,
-  User,
-  FolderTree,
-  Search
-} from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { useAuth } from '@/contexts/AuthContext';
+import { useLocalization } from '@/contexts/LocalizationContext';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
+import { BackButton } from '@/components/common/BackButton';
+import { Button } from '@/components/ui/button';
+import { Package, FolderTree, Settings, Users, Search, LogOut } from 'lucide-react';
 
 interface AppSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const menuItems = [
-  {
-    title: 'المنتجات',
-    url: 'products',
-    icon: Package,
-  },
-  {
-    title: 'الفئات',
-    url: 'categories',
-    icon: FolderTree,
-  },
-  {
-    title: 'مواصفات الفئات',
-    url: 'category-specs',
-    icon: Settings,
-  },
-  {
-    title: 'أصحاب المنتجات',
-    url: 'product-owners',
-    icon: Users,
-  },
-  {
-    title: 'البحث الذكي',
-    url: 'smart-search',
-    icon: Search,
-  },
-];
-
 export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }) => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const { t } = useLocalization();
+
+  const menuItems = [
+    {
+      id: 'products',
+      label: t('nav.products'),
+      icon: Package,
+    },
+    {
+      id: 'categories',
+      label: t('nav.categories'),
+      icon: FolderTree,
+    },
+    {
+      id: 'category-specs',
+      label: t('nav.categorySpecs'),
+      icon: Settings,
+    },
+    {
+      id: 'product-owners',
+      label: t('nav.productOwners'),
+      icon: Users,
+    },
+    {
+      id: 'smart-search',
+      label: t('nav.smartSearch'),
+      icon: Search,
+    },
+  ];
 
   return (
-    <Sidebar 
-      side="right" 
-      className="border-l-2 border-primary/20 order-1 w-full md:w-auto"
-    >
-      <SidebarHeader className="p-3 md:p-4">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary p-2 rounded-lg">
-            <BookOpen className="h-5 w-5 md:h-6 md:w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-base md:text-lg font-bold text-primary">BookBee</h2>
-            <p className="text-xs md:text-sm text-muted-foreground">لوحة التحكم</p>
-          </div>
+    <Sidebar side="right" className="border-l border-r-0">
+      <SidebarHeader className="p-4">
+        <div className="flex flex-col gap-2">
+          <BackButton />
+          <LanguageSwitcher />
         </div>
       </SidebarHeader>
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-primary font-semibold text-sm md:text-base">
-            إدارة النظام
+          <SidebarGroupLabel className="text-right px-4 py-2 text-sm font-medium text-gray-600">
+            القائمة الرئيسية
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
-                    onClick={() => onTabChange(item.url)}
-                    isActive={activeTab === item.url}
-                    className="w-full justify-start hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-white text-sm md:text-base"
+                    onClick={() => onTabChange(item.id)}
+                    isActive={activeTab === item.id}
+                    className="w-full justify-end text-right flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <item.icon className="mr-2 h-4 w-4 md:h-5 md:w-5" />
-                    <span>{item.title}</span>
+                    <span className="font-medium">{item.label}</span>
+                    <item.icon className="h-5 w-5" />
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -102,25 +88,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      
-      <SidebarFooter className="p-3 md:p-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted">
-            <User className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0" />
-            <div className="text-xs md:text-sm min-w-0">
-              <p className="font-medium truncate">{user?.user_metadata?.full_name || 'المستخدم'}</p>
-              <p className="text-muted-foreground truncate">{user?.email}</p>
-            </div>
-          </div>
-          <Button 
-            variant="ghost" 
-            onClick={logout}
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 text-xs md:text-sm"
-          >
-            <LogOut className="mr-2 h-3 w-3 md:h-4 md:w-4" />
-            تسجيل الخروج
-          </Button>
-        </div>
+
+      <SidebarFooter className="p-4">
+        <Button
+          variant="outline"
+          onClick={logout}
+          className="w-full justify-end text-right flex items-center gap-2"
+        >
+          <span>تسجيل الخروج</span>
+          <LogOut className="h-4 w-4" />
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
