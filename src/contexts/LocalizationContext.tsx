@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface Translations {
@@ -26,7 +25,7 @@ const translations = {
     
     // Products Page
     'products.title': 'إدارة المنتجات',
-    'products.description': 'إضافة وتعديل وحذف المنتجات',
+    'products.pageDescription': 'إضافة وتعديل وحذف المنتجات',
     'products.addNew': 'إضافة منتج جديد',
     'products.list': 'قائمة المنتجات',
     'products.count': 'عدد المنتجات',
@@ -63,7 +62,7 @@ const translations = {
     
     // Categories Page
     'categories.title': 'إدارة الفئات',
-    'categories.description': 'إضافة وتعديل وحذف فئات المنتجات',
+    'categories.pageDescription': 'إضافة وتعديل وحذف فئات المنتجات',
     'categories.addNew': 'إضافة فئة جديدة',
     'categories.list': 'قائمة الفئات',
     'categories.count': 'عدد الفئات',
@@ -84,7 +83,7 @@ const translations = {
     
     // Category Specs Page
     'categorySpecs.title': 'مواصفات الفئات',
-    'categorySpecs.description': 'إدارة مواصفات كل فئة من المنتجات',
+    'categorySpecs.pageDescription': 'إدارة مواصفات كل فئة من المنتجات',
     'categorySpecs.addNew': 'إضافة مواصفة جديدة',
     'categorySpecs.list': 'قائمة المواصفات',
     'categorySpecs.count': 'عدد المواصفات',
@@ -107,7 +106,7 @@ const translations = {
     
     // Product Owners Page
     'productOwners.title': 'أصحاب المنتجات',
-    'productOwners.description': 'إدارة أصحاب المنتجات والموردين',
+    'productOwners.pageDescription': 'إدارة أصحاب المنتجات والموردين',
     'productOwners.addNew': 'إضافة مالك جديد',
     'productOwners.list': 'قائمة أصحاب المنتجات',
     'productOwners.count': 'عدد أصحاب المنتجات',
@@ -130,7 +129,7 @@ const translations = {
     
     // Smart Search
     'search.title': 'البحث الذكي',
-    'search.description': 'ابحث في الطلبات باستخدام معايير متقدمة',
+    'search.pageDescription': 'ابحث في الطلبات باستخدام معايير متقدمة',
     'search.field': 'الحقل',
     'search.operator': 'المشغل',
     'search.value': 'القيمة',
@@ -205,7 +204,7 @@ const translations = {
     
     // Products Page
     'products.title': 'Product Management',
-    'products.description': 'Add, edit and delete products',
+    'products.pageDescription': 'Add, edit and delete products',
     'products.addNew': 'Add New Product',
     'products.list': 'Products List',
     'products.count': 'Products Count',
@@ -242,7 +241,7 @@ const translations = {
     
     // Categories Page
     'categories.title': 'Category Management',
-    'categories.description': 'Add, edit and delete product categories',
+    'categories.pageDescription': 'Add, edit and delete product categories',
     'categories.addNew': 'Add New Category',
     'categories.list': 'Categories List',
     'categories.count': 'Categories Count',
@@ -263,7 +262,7 @@ const translations = {
     
     // Category Specs Page
     'categorySpecs.title': 'Category Specifications',
-    'categorySpecs.description': 'Manage specifications for each product category',
+    'categorySpecs.pageDescription': 'Manage specifications for each product category',
     'categorySpecs.addNew': 'Add New Specification',
     'categorySpecs.list': 'Specifications List',
     'categorySpecs.count': 'Specifications Count',
@@ -286,7 +285,7 @@ const translations = {
     
     // Product Owners Page
     'productOwners.title': 'Product Owners',
-    'productOwners.description': 'Manage product owners and suppliers',
+    'productOwners.pageDescription': 'Manage product owners and suppliers',
     'productOwners.addNew': 'Add New Owner',
     'productOwners.list': 'Product Owners List',
     'productOwners.count': 'Product Owners Count',
@@ -309,7 +308,7 @@ const translations = {
     
     // Smart Search
     'search.title': 'Smart Search',
-    'search.description': 'Search orders using advanced criteria',
+    'search.pageDescription': 'Search orders using advanced criteria',
     'search.field': 'Field',
     'search.operator': 'Operator',
     'search.value': 'Value',
