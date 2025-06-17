@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { apiService, type Product, type Category, type ProductOwner } from '../../services/api';
+import { apiService, type Product, type Category, type ProductOwner, type CategorySpec } from '../../services/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +17,7 @@ export const ProductsTab: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [productOwners, setProductOwners] = useState<ProductOwner[]>([]);
+  const [categorySpecs, setCategorySpecs] = useState<CategorySpec[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -36,10 +36,24 @@ export const ProductsTab: React.FC = () => {
     product_owner_id: '',
     selling_target: '50',
   });
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [specValues, setSpecValues] = useState<{ [specId: string]: string }>({});
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!selectedCategoryId) {
+      setCategorySpecs([]);
+      setSpecValues({});
+      return;
+    }
+    apiService.getCategorySpecsByCategoryId(selectedCategoryId).then((specs) => {
+      setCategorySpecs(specs);
+      setSpecValues({});
+    });
+  }, [selectedCategoryId]);
 
   const loadData = async () => {
     try {
@@ -67,6 +81,11 @@ export const ProductsTab: React.FC = () => {
     e.preventDefault();
     
     try {
+      const p_spec_values = categorySpecs.map((spec) => ({
+        category_spec_id: spec.category_spec_id,
+        value: specValues[spec.category_spec_id] || "",
+      }));
+
       const productData = {
         p_sku: formData.sku,
         p_name: formData.name,
@@ -81,7 +100,7 @@ export const ProductsTab: React.FC = () => {
         p_category_id: formData.category_id,
         p_product_owner_id: formData.product_owner_id,
         p_selling_target: parseInt(formData.selling_target),
-        p_spec_values: [],
+        p_spec_values: p_spec_values,
       };
 
       await apiService.createOrUpdateProduct(productData);
@@ -139,6 +158,7 @@ export const ProductsTab: React.FC = () => {
       product_owner_id: product.product_owner_id,
       selling_target: '50',
     });
+    setSelectedCategoryId(product.category_id);
     setIsDialogOpen(true);
   };
 
@@ -159,6 +179,8 @@ export const ProductsTab: React.FC = () => {
       product_owner_id: '',
       selling_target: '50',
     });
+    setSelectedCategoryId('');
+    setSpecValues({});
   };
 
   const getCategoryName = (categoryId: string) => {
@@ -323,18 +345,24 @@ export const ProductsTab: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="category_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</Label>
-                    <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
-                      <SelectTrigger className={language === 'ar' ? 'text-right' : 'text-left'}>
-                        <SelectValue placeholder={t('products.selectCategory')} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.category_id} value={category.category_id!}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="my-2">
+يهسحمشغ                      <Select
+                        value={selectedCategoryId}
+                        onValueChange={setSelectedCategoryId}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الفئة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.category_id} value={cat.category_id}>
+                              {cat.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
@@ -371,6 +399,24 @@ export const ProductsTab: React.FC = () => {
                   />
                   <Label htmlFor="override_available">{t('products.overrideAvailable')}</Label>
                 </div>
+
+                {/* Render spec dropdowns/inputs */}
+                {categorySpecs.map((spec) => (
+                  <div key={spec.category_spec_id} className="my-2">
+                    <Label htmlFor={`spec_${spec.category_spec_id}`} className={language === 'ar' ? 'text-right' : 'text-left'}>{spec.name}</Label>
+                    <Input
+                      id={`spec_${spec.category_spec_id}`}
+                      type="text"
+                      value={specValues[spec.category_spec_id] || ""}
+                      onChange={(e) =>
+                        setSpecValues((prev) => ({ ...prev, [spec.category_spec_id]: e.target.value }))
+                      }
+                      required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                    />
+                  </div>
+                ))}
               </div>
               
               <DialogFooter className={`${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} gap-2`}>

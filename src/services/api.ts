@@ -1,4 +1,3 @@
-
 const API_BASE_URL = 'https://mydaqvcbapralulxsotd.supabase.co';
 const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im15ZGFxdmNiYXByYWx1bHhzb3RkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc2ODI4NzQsImV4cCI6MjA2MzI1ODg3NH0.dek6v0xRoWPRDql9O9vO41HBBBMnxTPsVUI54X8M-lc';
 
@@ -392,6 +391,29 @@ class ApiService {
     }
 
     console.log('Product owner deleted successfully');
+  }
+
+  /**
+   * Get category specs by categoryId
+   */
+  async getCategorySpecsByCategoryId(categoryId: string): Promise<CategorySpec[]> {
+    console.log('Fetching category specs for category:', categoryId);
+    const response = await fetch(
+      `${API_BASE_URL}/rest/v1/category_spec?category_id=eq.${categoryId}`,
+      {
+        headers: this.getHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Get category specs by categoryId error:', error);
+      throw new Error('Failed to fetch category specs by categoryId: ' + error);
+    }
+
+    const data = await response.json();
+    console.log('Category specs for category fetched:', data);
+    return data;
   }
 }
 
