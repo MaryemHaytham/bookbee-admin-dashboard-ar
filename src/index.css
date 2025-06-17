@@ -38,6 +38,8 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-width: 16rem;
+    --sidebar-width-icon: 3rem;
   }
 
   .dark {
@@ -155,18 +157,6 @@
   text-align: right;
 }
 
-/* Sidebar always stays on the left */
-[data-sidebar="sidebar"] {
-  position: fixed !important;
-  left: 0 !important;
-  right: auto !important;
-}
-
-/* Main content adjusts for sidebar */
-.rtl main {
-  direction: rtl;
-}
-
 /* Ensure proper spacing for content */
 .rtl .space-y-4 > * + * {
   margin-top: 1rem;
@@ -188,4 +178,29 @@
 
 .rtl .justify-end {
   justify-content: flex-end;
+}
+
+/* Modern Sidebar Styles */
+[data-sidebar="sidebar"] {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+}
+
+[data-state="collapsed"] [data-sidebar="sidebar"] {
+  width: var(--sidebar-width-icon);
+  min-width: var(--sidebar-width-icon);
+  max-width: var(--sidebar-width-icon);
+}
+
+/* Ensure main content adjusts properly */
+.group\\/sidebar-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar positioning */
+.group\\/sidebar-wrapper [data-sidebar="sidebar"] {
+  position: relative;
+  flex-shrink: 0;
 }

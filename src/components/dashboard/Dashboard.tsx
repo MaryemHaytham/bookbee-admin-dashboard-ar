@@ -34,12 +34,14 @@ export const Dashboard: React.FC = () => {
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-gray-50/30">
         <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 p-3 md:p-6">
-          <div className="mb-4 md:mb-6">
-            <SidebarTrigger className="mb-4" />
-          </div>
-          <div className="max-w-7xl mx-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
-            {renderContent()}
+        <main className="flex-1 overflow-hidden">
+          <div className="p-3 md:p-6 h-full">
+            <div className="mb-4 md:mb-6">
+              <SidebarTrigger className="mb-4" />
+            </div>
+            <div className="max-w-full mx-auto h-full overflow-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+              {renderContent()}
+            </div>
           </div>
         </main>
       </div>
