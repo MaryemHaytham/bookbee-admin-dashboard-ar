@@ -193,14 +193,13 @@
   max-width: var(--sidebar-width-icon);
 }
 
-/* Ensure main content adjusts properly */
-.group\\/sidebar-wrapper {
+/* Sidebar Layout */
+.sidebar-layout {
   display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar positioning */
-.group\\/sidebar-wrapper [data-sidebar="sidebar"] {
+.sidebar-layout [data-sidebar="sidebar"] {
   position: relative;
   flex-shrink: 0;
 }
