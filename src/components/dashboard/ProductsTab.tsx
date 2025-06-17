@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { apiService, type Product, type Category, type ProductOwner } from '../../services/api';
 import { Button } from '@/components/ui/button';
@@ -182,11 +183,11 @@ export const ProductsTab: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+    <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className={`flex justify-between items-center ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
-        <div>
+        <div className={language === 'ar' ? 'text-right' : 'text-left'}>
           <h2 className="text-3xl font-bold text-gray-900">{t('products.title')}</h2>
-          <p className="text-muted-foreground">{t('products.description')}</p>
+          <p className="text-muted-foreground">{t('products.pageDescription')}</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -197,7 +198,7 @@ export const ProductsTab: React.FC = () => {
             </Button>
           </DialogTrigger>
           
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle className={language === 'ar' ? 'text-right' : 'text-left'}>
@@ -257,8 +258,8 @@ export const ProductsTab: React.FC = () => {
                       value={formData.retail_price}
                       onChange={(e) => setFormData({...formData, retail_price: e.target.value})}
                       required
-                      className={language === 'ar' ? 'text-right' : 'text-left'}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      className="text-left"
+                      dir="ltr"
                     />
                   </div>
                   
@@ -271,8 +272,8 @@ export const ProductsTab: React.FC = () => {
                       value={formData.wholesale_price}
                       onChange={(e) => setFormData({...formData, wholesale_price: e.target.value})}
                       required
-                      className={language === 'ar' ? 'text-right' : 'text-left'}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      className="text-left"
+                      dir="ltr"
                     />
                   </div>
                   
@@ -285,8 +286,8 @@ export const ProductsTab: React.FC = () => {
                       value={formData.weight}
                       onChange={(e) => setFormData({...formData, weight: e.target.value})}
                       required
-                      className={language === 'ar' ? 'text-right' : 'text-left'}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      className="text-left"
+                      dir="ltr"
                     />
                   </div>
                 </div>
@@ -300,8 +301,8 @@ export const ProductsTab: React.FC = () => {
                       value={formData.stock_quantity}
                       onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
                       required
-                      className={language === 'ar' ? 'text-right' : 'text-left'}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      className="text-left"
+                      dir="ltr"
                     />
                   </div>
                   
@@ -313,8 +314,8 @@ export const ProductsTab: React.FC = () => {
                       value={formData.reserved}
                       onChange={(e) => setFormData({...formData, reserved: e.target.value})}
                       required
-                      className={language === 'ar' ? 'text-right' : 'text-left'}
-                      dir={language === 'ar' ? 'rtl' : 'ltr'}
+                      className="text-left"
+                      dir="ltr"
                     />
                   </div>
                 </div>
@@ -323,7 +324,7 @@ export const ProductsTab: React.FC = () => {
                   <div className="space-y-2">
                     <Label htmlFor="category_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</Label>
                     <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
-                      <SelectTrigger>
+                      <SelectTrigger className={language === 'ar' ? 'text-right' : 'text-left'}>
                         <SelectValue placeholder={t('products.selectCategory')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -339,7 +340,7 @@ export const ProductsTab: React.FC = () => {
                   <div className="space-y-2">
                     <Label htmlFor="product_owner_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.owner')}</Label>
                     <Select value={formData.product_owner_id} onValueChange={(value) => setFormData({...formData, product_owner_id: value})}>
-                      <SelectTrigger>
+                      <SelectTrigger className={language === 'ar' ? 'text-right' : 'text-left'}>
                         <SelectValue placeholder={t('products.selectOwner')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -353,7 +354,7 @@ export const ProductsTab: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
+                <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <Switch
                     id="visible"
                     checked={formData.visible}
@@ -362,7 +363,7 @@ export const ProductsTab: React.FC = () => {
                   <Label htmlFor="visible">{t('products.visible')}</Label>
                 </div>
                 
-                <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
+                <div className={`flex items-center gap-2 ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <Switch
                     id="override_available"
                     checked={formData.override_available}
@@ -372,7 +373,7 @@ export const ProductsTab: React.FC = () => {
                 </div>
               </div>
               
-              <DialogFooter className={language === 'ar' ? 'flex-row-reverse' : 'flex-row'}>
+              <DialogFooter className={`${language === 'ar' ? 'flex-row-reverse' : 'flex-row'} gap-2`}>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   {t('common.cancel')}
                 </Button>
@@ -393,7 +394,7 @@ export const ProductsTab: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" dir={language === 'ar' ? 'rtl' : 'ltr'}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -410,13 +411,13 @@ export const ProductsTab: React.FC = () => {
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product.product_id}>
-                    <TableCell className="font-mono">{product.sku}</TableCell>
+                    <TableCell className={`font-mono ${language === 'ar' ? 'text-right' : 'text-left'}`}>{product.sku}</TableCell>
                     <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{product.name}</TableCell>
                     <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{getCategoryName(product.category_id)}</TableCell>
                     <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{getOwnerName(product.product_owner_id)}</TableCell>
-                    <TableCell>{product.retail_price} {t('common.currency')}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{product.retail_price} {t('common.currency')}</TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{product.stock}</TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>
                       <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                         product.visible && product.available 
                           ? 'bg-green-100 text-green-800' 
@@ -426,7 +427,7 @@ export const ProductsTab: React.FC = () => {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className={`flex gap-2 ${language === 'ar' ? 'flex-row-reverse justify-end' : 'justify-start'}`}>
                         <Button
                           variant="outline"
                           size="sm"
