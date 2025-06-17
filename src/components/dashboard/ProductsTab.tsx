@@ -346,13 +346,13 @@ export const ProductsTab: React.FC = () => {
                   <div className="space-y-2">
                     <Label htmlFor="category_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</Label>
                     <div className="my-2">
-يهسحمشغ                      <Select
+                      <Select
                         value={selectedCategoryId}
                         onValueChange={setSelectedCategoryId}
                         required
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر الفئة" />
+                          <SelectValue placeholder={t('products.selectCategory')} />
                         </SelectTrigger>
                         <SelectContent>
                           {categories.map((cat) => (

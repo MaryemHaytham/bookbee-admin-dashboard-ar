@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Sidebar,
@@ -57,52 +56,56 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
   ];
 
   return (
-    <Sidebar side={language === 'ar' ? "right" : "left"} className={language === 'ar' ? "border-l border-r-0" : "border-r border-l-0"}>
-      <SidebarHeader className="p-4">
-        <div className="flex flex-col gap-2">
-          <BackButton />
-          <LanguageSwitcher />
-        </div>
-      </SidebarHeader>
-      
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className={`px-4 py-2 text-sm font-medium text-gray-600 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
-            {t('nav.mainMenu')}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.id}>
-                  <SidebarMenuButton
-                    onClick={() => onTabChange(item.id)}
-                    isActive={activeTab === item.id}
-                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors ${
-                      language === 'ar' ? 'justify-end text-right' : 'justify-start text-left'
-                    }`}
-                  >
-                    <span className="font-medium">{item.label}</span>
-                    <item.icon className="h-5 w-5" />
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+    <div className={`flex min-h-screen`}>
+      <Sidebar className={language === 'ar' ? "border-l border-r-0" : "border-r border-l-0"}>
+        
+          <SidebarHeader>
+            <span className="text-2xl font-extrabold">
+              <span className="text-orange-500">Book</span>
+              <span className="text-black">bee</span>
+            </span>
+          </SidebarHeader>
+        
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className={`px-4 py-2 text-sm font-medium text-gray-600 `}>
+              {t('nav.mainMenu')}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton
+                      onClick={() => onTabChange(item.id)}
+                      isActive={activeTab === item.id}
+                      className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors `}
+                    >
+                      <span className="font-medium">{item.label}</span>
+                      <item.icon className="h-5 w-5" />
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        <Button
-          variant="outline"
-          onClick={logout}
-          className={`w-full flex items-center gap-2 ${
-            language === 'ar' ? 'justify-end text-right' : 'justify-start text-left'
-          }`}
-        >
-          <span>{t('nav.logout')}</span>
-          <LogOut className="h-4 w-4" />
-        </Button>
-      </SidebarFooter>
-    </Sidebar>
+        <SidebarFooter className="p-4">
+          <LanguageSwitcher />
+          <Button
+            variant="outline"
+            onClick={logout}
+            className={`w-full flex items-center gap-2 `}
+          >
+            <span>{t('nav.logout')}</span>
+            <LogOut className="h-4 w-4" />
+            
+          </Button>
+        </SidebarFooter>
+      </Sidebar>
+      <main className="flex-1">
+        {/* Main content */}
+      </main>
+    </div>
   );
 };

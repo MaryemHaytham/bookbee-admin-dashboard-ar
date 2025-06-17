@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Plus, X, Search } from 'lucide-react';
 import { apiService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { SearchResults } from './SearchResults';
+import { useLocalization } from '@/contexts/LocalizationContext';
 
 interface SearchParam {
   id: string;
@@ -26,54 +26,54 @@ interface SearchOption {
 const searchOptions: SearchOption[] = [
   {
     field: 'select',
-    label: 'حقول الاختيار',
+    label: 'field.select',
     type: 'array',
     operators: [
-      { value: '=', label: 'يساوي' }
+      { value: '=', label: 'operator.equals' }
     ]
   },
   {
     field: 'order',
-    label: 'ترتيب',
+    label: 'field.order',
     type: 'array',
     operators: [
-      { value: '=', label: 'يساوي' }
+      { value: '=', label: 'operator.equals' }
     ]
   },
   {
     field: 'user_id',
-    label: 'معرف المستخدم',
+    label: 'field.userId',
     type: 'string',
     operators: [
-      { value: 'eq', label: 'يساوي' },
-      { value: 'neq', label: 'لا يساوي' }
+      { value: 'eq', label: 'operator.equals' },
+      { value: 'neq', label: 'operator.notEquals' }
     ]
   },
   {
     field: 'order_number',
-    label: 'رقم الطلب',
+    label: 'field.orderNumber',
     type: 'string',
     operators: [
-      { value: 'eq', label: 'يساوي' },
-      { value: 'like', label: 'يحتوي على' },
-      { value: 'ilike', label: 'يحتوي على (غير حساس للحالة)' }
+      { value: 'eq', label: 'operator.equals' },
+      { value: 'like', label: 'operator.contains' },
+      { value: 'ilike', label: 'operator.containsCI' }
     ]
   },
   {
     field: 'order_id',
-    label: 'معرف الطلب',
+    label: 'field.orderId',
     type: 'string',
     operators: [
-      { value: 'eq', label: 'يساوي' }
+      { value: 'eq', label: 'operator.equals' }
     ]
   },
   {
     field: 'status',
-    label: 'حالة الطلب',
+    label: 'field.status',
     type: 'string',
     operators: [
-      { value: 'eq', label: 'يساوي' },
-      { value: 'neq', label: 'لا يساوي' }
+      { value: 'eq', label: 'operator.equals' },
+      { value: 'neq', label: 'operator.notEquals' }
     ]
   }
 ];
@@ -83,6 +83,7 @@ export const SmartSearch: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t, language } = useLocalization();
 
   const addSearchParam = () => {
     const newParam: SearchParam = {
@@ -107,8 +108,8 @@ export const SmartSearch: React.FC = () => {
   const executeSearch = async () => {
     if (searchParams.length === 0) {
       toast({
-        title: "خطأ",
-        description: "يرجى إضافة معايير البحث أولاً",
+        title: t('search.error'),
+        description: t('search.addCriteriaError'),
         variant: "destructive"
       });
       return;
@@ -144,14 +145,14 @@ export const SmartSearch: React.FC = () => {
       setSearchResults(data);
       
       toast({
-        title: "نجح البحث",
-        description: `تم العثور على ${data.length} نتيجة`
+        title: t('search.success'),
+        description: t('search.results') + `: ${data.length}`
       });
     } catch (error) {
       console.error('Search error:', error);
       toast({
-        title: "خطأ في البحث",
-        description: "حدث خطأ أثناء البحث",
+        title: t('search.error'),
+        description: t('search.errorDescription'),
         variant: "destructive"
       });
     } finally {
@@ -168,27 +169,27 @@ export const SmartSearch: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="text-right flex items-center gap-2">
+          <CardTitle className={`${language === 'ar' ? 'text-right' : ''} flex items-center gap-2`}>
             <Search className="h-5 w-5" />
-            البحث الذكي
+            {t('search.title')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {searchParams.map((param) => (
             <div key={param.id} className="flex gap-2 items-end">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-1 block text-right">الحقل</label>
+                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : ''}`}>{t('search.field')}</label>
                 <Select
                   value={param.field}
                   onValueChange={(value) => updateSearchParam(param.id, 'field', value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر الحقل" />
+                    <SelectValue placeholder={t('search.selectField')} />
                   </SelectTrigger>
                   <SelectContent>
                     {searchOptions.map((option) => (
                       <SelectItem key={option.field} value={option.field}>
-                        {option.label}
+                        {t(option.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -196,19 +197,19 @@ export const SmartSearch: React.FC = () => {
               </div>
 
               <div className="flex-1">
-                <label className="text-sm font-medium mb-1 block text-right">المشغل</label>
+                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : ''}`}>{t('search.operator')}</label>
                 <Select
                   value={param.operator}
                   onValueChange={(value) => updateSearchParam(param.id, 'operator', value)}
                   disabled={!param.field}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر المشغل" />
+                    <SelectValue placeholder={t('search.selectOperator')} />
                   </SelectTrigger>
                   <SelectContent>
                     {getOperatorsForField(param.field).map((operator) => (
                       <SelectItem key={operator.value} value={operator.value}>
-                        {operator.label}
+                        {t(operator.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -216,12 +217,12 @@ export const SmartSearch: React.FC = () => {
               </div>
 
               <div className="flex-1">
-                <label className="text-sm font-medium mb-1 block text-right">القيمة</label>
+                <label className={`text-sm font-medium mb-1 block ${language === 'ar' ? 'text-right' : ''}`}>{t('search.value')}</label>
                 <Input
                   value={param.value}
                   onChange={(e) => updateSearchParam(param.id, 'value', e.target.value)}
-                  placeholder="أدخل القيمة"
-                  className="text-right"
+                  placeholder={t('search.enterValue')}
+                  className={language === 'ar' ? 'text-right' : ''}
                 />
               </div>
 
@@ -230,6 +231,7 @@ export const SmartSearch: React.FC = () => {
                 size="icon"
                 onClick={() => removeSearchParam(param.id)}
                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                aria-label={t('common.delete')}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -239,11 +241,11 @@ export const SmartSearch: React.FC = () => {
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={addSearchParam}>
               <Plus className="h-4 w-4 mr-2" />
-              إضافة معيار
+              {t('search.addCriteria')}
             </Button>
             <Button onClick={executeSearch} disabled={isLoading}>
               <Search className="h-4 w-4 mr-2" />
-              {isLoading ? 'جاري البحث...' : 'بحث'}
+              {isLoading ? t('search.searching') : t('search.search')}
             </Button>
           </div>
         </CardContent>

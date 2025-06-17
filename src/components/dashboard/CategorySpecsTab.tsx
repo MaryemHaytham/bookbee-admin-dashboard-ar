@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { apiService, type CategorySpec, type Category } from '../../services/api';
 import { Button } from '@/components/ui/button';
@@ -10,8 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Settings } from 'lucide-react';
+import { useLocalization } from '@/contexts/LocalizationContext';
 
 export const CategorySpecsTab: React.FC = () => {
+  const { t, language } = useLocalization();
   const [categorySpecs, setCategorySpecs] = useState<CategorySpec[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,8 +38,8 @@ export const CategorySpecsTab: React.FC = () => {
       setCategories(categoriesData);
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في تحميل البيانات",
+        title: t('common.error'),
+        description: t('categorySpecs.loadError'),
         variant: "destructive",
       });
     } finally {
@@ -48,11 +49,11 @@ export const CategorySpecsTab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim() || !formData.category_id) {
       toast({
-        title: "خطأ",
-        description: "يرجى ملء جميع البيانات المطلوبة",
+        title: t('common.error'),
+        description: t('categorySpecs.fillRequired'),
         variant: "destructive",
       });
       return;
@@ -62,43 +63,43 @@ export const CategorySpecsTab: React.FC = () => {
       if (editingSpec) {
         await apiService.updateCategorySpec(editingSpec.name, formData.name);
         toast({
-          title: "نجح",
-          description: "تم تحديث المواصفة بنجاح",
+          title: t('common.success'),
+          description: t('categorySpecs.updateSuccess'),
         });
       } else {
         await apiService.createCategorySpec(formData.category_id, formData.name);
         toast({
-          title: "نجح",
-          description: "تم إضافة المواصفة بنجاح",
+          title: t('common.success'),
+          description: t('categorySpecs.addSuccess'),
         });
       }
-      
+
       setIsDialogOpen(false);
       resetForm();
       loadData();
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في حفظ المواصفة",
+        title: t('common.error'),
+        description: t('categorySpecs.saveError'),
         variant: "destructive",
       });
     }
   };
 
   const handleDelete = async (specName: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذه المواصفة؟')) return;
-    
+    if (!confirm(t('categorySpecs.deleteConfirm'))) return;
+
     try {
       await apiService.deleteCategorySpec(specName);
       toast({
-        title: "نجح",
-        description: "تم حذف المواصفة بنجاح",
+        title: t('common.success'),
+        description: t('categorySpecs.deleteSuccess'),
       });
       loadData();
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في حذف المواصفة",
+        title: t('common.error'),
+        description: t('categorySpecs.deleteError'),
         variant: "destructive",
       });
     }
@@ -123,7 +124,7 @@ export const CategorySpecsTab: React.FC = () => {
 
   const getCategoryName = (categoryId: string) => {
     const category = categories.find(c => c.category_id === categoryId);
-    return category?.name || 'غير محدد';
+    return category?.name || t('products.notSpecified');
   };
 
   if (isLoading) {
@@ -131,7 +132,7 @@ export const CategorySpecsTab: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Settings className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">جاري تحميل مواصفات الفئات...</p>
+          <p className="text-muted-foreground">{t('categorySpecs.loading')}</p>
         </div>
       </div>
     );
@@ -141,39 +142,39 @@ export const CategorySpecsTab: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">إدارة مواصفات الفئات</h2>
-          <p className="text-muted-foreground">إضافة وتعديل وحذف مواصفات فئات المنتجات</p>
+          <h2 className="text-3xl font-bold text-gray-900">{t('categorySpecs.title')}</h2>
+          <p className="text-muted-foreground">{t('categorySpecs.pageDescription')}</p>
         </div>
-        
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
               <Plus className="mr-2 h-4 w-4" />
-              إضافة مواصفة جديدة
+              {t('categorySpecs.addNew')}
             </Button>
           </DialogTrigger>
-          
+
           <DialogContent>
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>
-                  {editingSpec ? 'تعديل المواصفة' : 'إضافة مواصفة جديدة'}
+                  {editingSpec ? t('categorySpecs.edit') : t('categorySpecs.addNew')}
                 </DialogTitle>
                 <DialogDescription>
-                  أدخل بيانات المواصفة الجديدة
+                  {t('categorySpecs.fillRequired')}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category_id">الفئة</Label>
-                  <Select 
-                    value={formData.category_id} 
-                    onValueChange={(value) => setFormData({...formData, category_id: value})}
+                  <Label htmlFor="category_id">{t('categorySpecs.category')}</Label>
+                  <Select
+                    value={formData.category_id}
+                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                     disabled={!!editingSpec}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر الفئة" />
+                      <SelectValue placeholder={t('categorySpecs.selectCategory')} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -184,27 +185,27 @@ export const CategorySpecsTab: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="specName">اسم المواصفة</Label>
+                  <Label htmlFor="specName">{t('categorySpecs.name')}</Label>
                   <Input
                     id="specName"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="مثال: اللون"
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder={t('categorySpecs.name')}
                     required
-                    className="text-right"
-                    dir="rtl"
+                    className={language === 'ar' ? 'text-right' : ''}
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
                   />
                 </div>
               </div>
-              
+
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  إلغاء
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingSpec ? 'تحديث' : 'إضافة'}
+                  {editingSpec ? t('common.update') : t('common.add')}
                 </Button>
               </DialogFooter>
             </form>
@@ -214,25 +215,25 @@ export const CategorySpecsTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>قائمة مواصفات الفئات</CardTitle>
+          <CardTitle>{t('categorySpecs.list')}</CardTitle>
           <CardDescription>
-            عدد المواصفات: {categorySpecs.length}
+            {t('categorySpecs.count')}: {categorySpecs.length}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-right">اسم المواصفة</TableHead>
-                <TableHead className="text-right">الفئة</TableHead>
-                <TableHead className="text-right">الإجراءات</TableHead>
+                <TableHead className={language === 'ar' ? 'text-right' : ''}>{t('categorySpecs.name')}</TableHead>
+                <TableHead className={language === 'ar' ? 'text-right' : ''}>{t('categorySpecs.category')}</TableHead>
+                <TableHead className={language === 'ar' ? 'text-right' : ''}>{t('categorySpecs.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {categorySpecs.map((spec) => (
                 <TableRow key={spec.category_spec_id}>
-                  <TableCell className="text-right font-medium">{spec.name}</TableCell>
-                  <TableCell className="text-right">{getCategoryName(spec.category_id)}</TableCell>
+                  <TableCell className={language === 'ar' ? 'text-right font-medium' : 'font-medium'}>{spec.name}</TableCell>
+                  <TableCell className={language === 'ar' ? 'text-right' : ''}>{getCategoryName(spec.category_id)}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button
