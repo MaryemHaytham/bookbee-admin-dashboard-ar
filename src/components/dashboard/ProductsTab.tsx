@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { apiService, type Product, type Category, type ProductOwner } from '../../services/api';
 import { Button } from '@/components/ui/button';
@@ -11,8 +10,10 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useLocalization } from '@/contexts/LocalizationContext';
 
 export const ProductsTab: React.FC = () => {
+  const { t, language } = useLocalization();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [productOwners, setProductOwners] = useState<ProductOwner[]>([]);
@@ -52,8 +53,8 @@ export const ProductsTab: React.FC = () => {
       setProductOwners(ownersData);
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في تحميل البيانات",
+        title: t('common.error'),
+        description: t('products.loadError'),
         variant: "destructive",
       });
     } finally {
@@ -85,8 +86,8 @@ export const ProductsTab: React.FC = () => {
       await apiService.createOrUpdateProduct(productData);
       
       toast({
-        title: "نجح",
-        description: editingProduct ? "تم تحديث المنتج بنجاح" : "تم إضافة المنتج بنجاح",
+        title: t('common.success'),
+        description: editingProduct ? t('products.updateSuccess') : t('products.addSuccess'),
       });
       
       setIsDialogOpen(false);
@@ -94,27 +95,27 @@ export const ProductsTab: React.FC = () => {
       loadData();
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في حفظ المنتج",
+        title: t('common.error'),
+        description: t('products.saveError'),
         variant: "destructive",
       });
     }
   };
 
   const handleDelete = async (productId: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+    if (!confirm(t('products.deleteConfirm'))) return;
     
     try {
       await apiService.deleteProduct(productId);
       toast({
-        title: "نجح",
-        description: "تم حذف المنتج بنجاح",
+        title: t('common.success'),
+        description: t('products.deleteSuccess'),
       });
       loadData();
     } catch (error) {
       toast({
-        title: "خطأ",
-        description: "فشل في حذف المنتج",
+        title: t('common.error'),
+        description: t('products.deleteError'),
         variant: "destructive",
       });
     }
@@ -161,12 +162,12 @@ export const ProductsTab: React.FC = () => {
 
   const getCategoryName = (categoryId: string) => {
     const category = categories.find(c => c.category_id === categoryId);
-    return category?.name || 'غير محدد';
+    return category?.name || t('products.notSpecified');
   };
 
   const getOwnerName = (ownerId: string) => {
     const owner = productOwners.find(o => o.product_owner_id === ownerId);
-    return owner?.name || 'غير محدد';
+    return owner?.name || t('products.notSpecified');
   };
 
   if (isLoading) {
@@ -174,79 +175,81 @@ export const ProductsTab: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Package className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">جاري تحميل المنتجات...</p>
+          <p className="text-muted-foreground">{t('products.loading')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+      <div className={`flex justify-between items-center ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">إدارة المنتجات</h2>
-          <p className="text-muted-foreground">إضافة وتعديل وحذف المنتجات</p>
+          <h2 className="text-3xl font-bold text-gray-900">{t('products.title')}</h2>
+          <p className="text-muted-foreground">{t('products.description')}</p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={resetForm} className="bg-primary hover:bg-primary/90">
-              <Plus className="mr-2 h-4 w-4" />
-              إضافة منتج جديد
+              <Plus className={`h-4 w-4 ${language === 'ar' ? 'ml-2' : 'mr-2'}`} />
+              {t('products.addNew')}
             </Button>
           </DialogTrigger>
           
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>
-                  {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
+                <DialogTitle className={language === 'ar' ? 'text-right' : 'text-left'}>
+                  {editingProduct ? t('products.edit') : t('products.add')}
                 </DialogTitle>
-                <DialogDescription>
-                  املأ جميع البيانات المطلوبة للمنتج
+                <DialogDescription className={language === 'ar' ? 'text-right' : 'text-left'}>
+                  {t('products.fillRequired')}
                 </DialogDescription>
               </DialogHeader>
               
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sku">رمز المنتج (SKU)</Label>
+                    <Label htmlFor="sku" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.sku')}</Label>
                     <Input
                       id="sku"
                       value={formData.sku}
                       onChange={(e) => setFormData({...formData, sku: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="name">اسم المنتج</Label>
+                    <Label htmlFor="name" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.name')}</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       required
-                      className="text-right"
-                      dir="rtl"
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="description">وصف المنتج</Label>
+                  <Label htmlFor="description" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.description')}</Label>
                   <Input
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     required
-                    className="text-right"
-                    dir="rtl"
+                    className={language === 'ar' ? 'text-right' : 'text-left'}
+                    dir={language === 'ar' ? 'rtl' : 'ltr'}
                   />
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="retail_price">سعر التجزئة</Label>
+                    <Label htmlFor="retail_price" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.retailPrice')}</Label>
                     <Input
                       id="retail_price"
                       type="number"
@@ -254,11 +257,13 @@ export const ProductsTab: React.FC = () => {
                       value={formData.retail_price}
                       onChange={(e) => setFormData({...formData, retail_price: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="wholesale_price">سعر الجملة</Label>
+                    <Label htmlFor="wholesale_price" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.wholesalePrice')}</Label>
                     <Input
                       id="wholesale_price"
                       type="number"
@@ -266,11 +271,13 @@ export const ProductsTab: React.FC = () => {
                       value={formData.wholesale_price}
                       onChange={(e) => setFormData({...formData, wholesale_price: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="weight">الوزن (كجم)</Label>
+                    <Label htmlFor="weight" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.weight')}</Label>
                     <Input
                       id="weight"
                       type="number"
@@ -278,40 +285,46 @@ export const ProductsTab: React.FC = () => {
                       value={formData.weight}
                       onChange={(e) => setFormData({...formData, weight: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="stock_quantity">الكمية المتاحة</Label>
+                    <Label htmlFor="stock_quantity" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.stockQuantity')}</Label>
                     <Input
                       id="stock_quantity"
                       type="number"
                       value={formData.stock_quantity}
                       onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="reserved">الكمية المحجوزة</Label>
+                    <Label htmlFor="reserved" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.reserved')}</Label>
                     <Input
                       id="reserved"
                       type="number"
                       value={formData.reserved}
                       onChange={(e) => setFormData({...formData, reserved: e.target.value})}
                       required
+                      className={language === 'ar' ? 'text-right' : 'text-left'}
+                      dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category_id">الفئة</Label>
+                    <Label htmlFor="category_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</Label>
                     <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="اختر الفئة" />
+                        <SelectValue placeholder={t('products.selectCategory')} />
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
@@ -324,10 +337,10 @@ export const ProductsTab: React.FC = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="product_owner_id">مالك المنتج</Label>
+                    <Label htmlFor="product_owner_id" className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.owner')}</Label>
                     <Select value={formData.product_owner_id} onValueChange={(value) => setFormData({...formData, product_owner_id: value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="اختر المالك" />
+                        <SelectValue placeholder={t('products.selectOwner')} />
                       </SelectTrigger>
                       <SelectContent>
                         {productOwners.map((owner) => (
@@ -340,31 +353,31 @@ export const ProductsTab: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2 space-x-reverse">
+                <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
                   <Switch
                     id="visible"
                     checked={formData.visible}
                     onCheckedChange={(checked) => setFormData({...formData, visible: checked})}
                   />
-                  <Label htmlFor="visible">منتج مرئي</Label>
+                  <Label htmlFor="visible">{t('products.visible')}</Label>
                 </div>
                 
-                <div className="flex items-center space-x-2 space-x-reverse">
+                <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''}`}>
                   <Switch
                     id="override_available"
                     checked={formData.override_available}
                     onCheckedChange={(checked) => setFormData({...formData, override_available: checked})}
                   />
-                  <Label htmlFor="override_available">تجاوز حالة التوفر</Label>
+                  <Label htmlFor="override_available">{t('products.overrideAvailable')}</Label>
                 </div>
               </div>
               
-              <DialogFooter>
+              <DialogFooter className={language === 'ar' ? 'flex-row-reverse' : 'flex-row'}>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  إلغاء
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  {editingProduct ? 'تحديث' : 'إضافة'}
+                  {editingProduct ? t('common.update') : t('common.add')}
                 </Button>
               </DialogFooter>
             </form>
@@ -374,9 +387,9 @@ export const ProductsTab: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>قائمة المنتجات</CardTitle>
-          <CardDescription>
-            عدد المنتجات: {products.length}
+          <CardTitle className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.list')}</CardTitle>
+          <CardDescription className={language === 'ar' ? 'text-right' : 'text-left'}>
+            {t('products.count')}: {products.length}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -384,24 +397,24 @@ export const ProductsTab: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-right">رمز المنتج</TableHead>
-                  <TableHead className="text-right">الاسم</TableHead>
-                  <TableHead className="text-right">الفئة</TableHead>
-                  <TableHead className="text-right">المالك</TableHead>
-                  <TableHead className="text-right">سعر التجزئة</TableHead>
-                  <TableHead className="text-right">الكمية</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.sku')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('common.name')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.category')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.owner')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.retailPrice')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.stockQuantity')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('products.status')}</TableHead>
+                  <TableHead className={language === 'ar' ? 'text-right' : 'text-left'}>{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {products.map((product) => (
                   <TableRow key={product.product_id}>
                     <TableCell className="font-mono">{product.sku}</TableCell>
-                    <TableCell className="text-right">{product.name}</TableCell>
-                    <TableCell className="text-right">{getCategoryName(product.category_id)}</TableCell>
-                    <TableCell className="text-right">{getOwnerName(product.product_owner_id)}</TableCell>
-                    <TableCell>{product.retail_price} ج.م</TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{product.name}</TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{getCategoryName(product.category_id)}</TableCell>
+                    <TableCell className={language === 'ar' ? 'text-right' : 'text-left'}>{getOwnerName(product.product_owner_id)}</TableCell>
+                    <TableCell>{product.retail_price} {t('common.currency')}</TableCell>
                     <TableCell>{product.stock}</TableCell>
                     <TableCell>
                       <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
@@ -409,7 +422,7 @@ export const ProductsTab: React.FC = () => {
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {product.visible && product.available ? 'متاح' : 'غير متاح'}
+                        {product.visible && product.available ? t('products.available') : t('products.unavailable')}
                       </span>
                     </TableCell>
                     <TableCell>

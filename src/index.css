@@ -94,20 +94,70 @@
     @apply bg-background text-foreground font-arabic;
   }
 
-  html[dir="rtl"] {
+  /* RTL Support */
+  html[dir="rtl"],
+  .rtl {
     direction: rtl;
   }
 
-  html[dir="rtl"] .rtl\:text-right {
+  html[dir="ltr"],
+  .ltr {
+    direction: ltr;
+  }
+
+  /* RTL specific styles */
+  .rtl .text-right {
     text-align: right;
   }
 
-  html[dir="rtl"] .rtl\:mr-2 {
+  .rtl .text-left {
+    text-align: left;
+  }
+
+  .rtl .flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+
+  .rtl .space-x-reverse > * + * {
+    margin-left: 0;
     margin-right: 0.5rem;
   }
 
-  html[dir="rtl"] .rtl\:ml-2 {
+  .rtl .ml-2 {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  .rtl .mr-2 {
+    margin-right: 0;
     margin-left: 0.5rem;
+  }
+
+  /* Input RTL support */
+  .rtl input[type="text"],
+  .rtl input[type="email"],
+  .rtl input[type="tel"],
+  .rtl textarea {
+    text-align: right;
+  }
+
+  .rtl input[type="number"] {
+    text-align: left;
+  }
+
+  /* Table RTL support */
+  .rtl table {
+    direction: rtl;
+  }
+
+  /* Dialog RTL support */
+  .rtl [role="dialog"] {
+    direction: rtl;
+  }
+
+  /* Select RTL support */
+  .rtl [role="combobox"] {
+    text-align: right;
   }
 
   /* Responsive improvements */
@@ -121,5 +171,10 @@
   [dir="rtl"] [data-sidebar="sidebar"] {
     border-right: none;
     border-left: 1px solid hsl(var(--sidebar-border));
+  }
+
+  [dir="ltr"] [data-sidebar="sidebar"] {
+    border-left: none;
+    border-right: 1px solid hsl(var(--sidebar-border));
   }
 }

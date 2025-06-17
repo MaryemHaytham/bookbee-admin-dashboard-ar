@@ -26,7 +26,7 @@ interface AppSidebarProps {
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }) => {
   const { logout } = useAuth();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
 
   const menuItems = [
     {
@@ -57,7 +57,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
   ];
 
   return (
-    <Sidebar side="right" className="border-l border-r-0">
+    <Sidebar side={language === 'ar' ? "right" : "left"} className={language === 'ar' ? "border-l border-r-0" : "border-r border-l-0"}>
       <SidebarHeader className="p-4">
         <div className="flex flex-col gap-2">
           <BackButton />
@@ -67,8 +67,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-right px-4 py-2 text-sm font-medium text-gray-600">
-            القائمة الرئيسية
+          <SidebarGroupLabel className={`px-4 py-2 text-sm font-medium text-gray-600 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {t('nav.mainMenu')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -77,7 +77,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
                   <SidebarMenuButton
                     onClick={() => onTabChange(item.id)}
                     isActive={activeTab === item.id}
-                    className="w-full justify-end text-right flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors"
+                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors ${
+                      language === 'ar' ? 'justify-end text-right' : 'justify-start text-left'
+                    }`}
                   >
                     <span className="font-medium">{item.label}</span>
                     <item.icon className="h-5 w-5" />
@@ -93,9 +95,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
         <Button
           variant="outline"
           onClick={logout}
-          className="w-full justify-end text-right flex items-center gap-2"
+          className={`w-full flex items-center gap-2 ${
+            language === 'ar' ? 'justify-end text-right' : 'justify-start text-left'
+          }`}
         >
-          <span>تسجيل الخروج</span>
+          <span>{t('nav.logout')}</span>
           <LogOut className="h-4 w-4" />
         </Button>
       </SidebarFooter>
