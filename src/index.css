@@ -1,4 +1,5 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,74 +8,80 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+
+    --primary: 25 95% 53%; /* Orange primary */
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+
+    --accent: 25 95% 53%; /* Orange accent */
+    --accent-foreground: 210 40% 98%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --ring: 25 95% 53%; /* Orange ring */
+
     --radius: 0.5rem;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent: 25 95% 96%;
+    --sidebar-accent-foreground: 25 95% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --sidebar-width: 16rem;
-    --sidebar-width-icon: 3rem;
+    --sidebar-ring: 25 95% 53%;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
+
+    --primary: 25 95% 53%;
+    --primary-foreground: 210 40% 98%;
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+
+    --accent: 25 95% 53%;
     --accent-foreground: 210 40% 98%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 25 95% 53%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 94.1%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 25 95% 53%;
   }
 }
 
@@ -82,124 +89,172 @@
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-arabic;
   }
-}
 
-/* RTL Support */
-.rtl {
-  direction: rtl;
-}
+  /* RTL Support */
+  html[dir="rtl"],
+  .rtl {
+    direction: rtl;
+  }
 
-.rtl .flex {
-  flex-direction: row-reverse;
-}
+  html[dir="ltr"],
+  .ltr {
+    direction: ltr;
+  }
 
-.rtl .justify-between {
-  flex-direction: row-reverse;
-}
+  /* RTL specific styles */
+  .rtl .text-right {
+    text-align: right;
+  }
 
-.rtl .text-right {
-  text-align: right;
-}
+  .rtl .text-left {
+    text-align: left;
+  }
 
-.rtl .text-left {
-  text-align: left;
-}
+  .rtl .flex-row-reverse {
+    flex-direction: row-reverse;
+  }
 
-/* Table RTL Support */
-.rtl table {
-  direction: rtl;
-}
+  /* RTL Table improvements */
+  .rtl table {
+    direction: rtl;
+  }
 
-.rtl th,
-.rtl td {
-  text-align: right;
-}
+  .rtl th,
+  .rtl td {
+    text-align: right;
+  }
 
-.rtl th:first-child,
-.rtl td:first-child {
-  text-align: right;
-}
+  .rtl th:first-child,
+  .rtl td:first-child {
+    border-radius: 0 0.375rem 0.375rem 0;
+  }
 
-.rtl th:last-child,
-.rtl td:last-child {
-  text-align: left;
-}
+  .rtl th:last-child,
+  .rtl td:last-child {
+    border-radius: 0.375rem 0 0 0.375rem;
+  }
 
-/* Form RTL Support */
-.rtl .form-group {
-  text-align: right;
-}
+  /* RTL Button groups */
+  .rtl .flex.gap-2 {
+    flex-direction: row-reverse;
+  }
 
-.rtl input,
-.rtl textarea,
-.rtl select {
-  text-align: right;
-}
+  /* RTL Dialog improvements */
+  .rtl [role="dialog"] {
+    direction: rtl;
+  }
 
-.rtl .checkbox-wrapper {
-  flex-direction: row-reverse;
-}
+  .rtl .dialog-footer {
+    flex-direction: row-reverse;
+  }
 
-/* Button RTL Support */
-.rtl .button-with-icon {
-  flex-direction: row-reverse;
-}
+  /* RTL Form improvements */
+  .rtl .grid.grid-cols-2 {
+    direction: rtl;
+  }
 
-/* Dialog RTL Support */
-.rtl .dialog-content {
-  text-align: right;
-}
+  .rtl .grid.grid-cols-3 {
+    direction: rtl;
+  }
 
-.rtl .dialog-header {
-  text-align: right;
-}
+  /* RTL Input improvements */
+  .rtl input[type="text"],
+  .rtl input[type="email"],
+  .rtl input[type="tel"],
+  .rtl textarea {
+    text-align: right;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
 
-/* Ensure proper spacing for content */
-.rtl .space-y-4 > * + * {
-  margin-top: 1rem;
-  margin-bottom: 0;
-}
+  .rtl input[type="number"] {
+    text-align: left;
+  }
 
-.rtl .gap-4 {
-  gap: 1rem;
-}
+  /* RTL Select improvements */
+  .rtl [role="combobox"] {
+    text-align: right;
+  }
 
-/* Fix flex direction for specific components in RTL */
-.rtl .items-center {
-  align-items: center;
-}
+  .rtl .select-trigger {
+    text-align: right;
+  }
 
-.rtl .justify-start {
-  justify-content: flex-start;
-}
+  /* RTL Card improvements */
+  .rtl .card-header {
+    text-align: right;
+  }
 
-.rtl .justify-end {
-  justify-content: flex-end;
-}
+  .rtl .card-title {
+    text-align: right;
+  }
 
-/* Modern Sidebar Styles */
-[data-sidebar="sidebar"] {
-  width: var(--sidebar-width);
-  min-width: var(--sidebar-width);
-  max-width: var(--sidebar-width);
-}
+  .rtl .card-description {
+    text-align: right;
+  }
 
-[data-state="collapsed"] [data-sidebar="sidebar"] {
-  width: var(--sidebar-width-icon);
-  min-width: var(--sidebar-width-icon);
-  max-width: var(--sidebar-width-icon);
-}
+  /* RTL Sidebar improvements */
+  [dir="rtl"] [data-sidebar="sidebar"] {
+    border-right: none;
+    border-left: 1px solid hsl(var(--sidebar-border));
+  }
 
-/* Sidebar Layout */
-.sidebar-layout {
-  display: flex;
-  min-height: 100vh;
-}
+  [dir="ltr"] [data-sidebar="sidebar"] {
+    border-left: none;
+    border-right: 1px solid hsl(var(--sidebar-border));
+  }
 
-.sidebar-layout [data-sidebar="sidebar"] {
-  position: relative;
-  flex-shrink: 0;
+  /* RTL spacing improvements */
+  .rtl .space-x-2 > * + * {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+
+  .rtl .space-x-4 > * + * {
+    margin-left: 0;
+    margin-right: 1rem;
+  }
+
+  .rtl .gap-2 {
+    gap: 0.5rem;
+  }
+
+  .rtl .gap-4 {
+    gap: 1rem;
+  }
+
+  /* RTL Switch improvements */
+  .rtl .switch-container {
+    flex-direction: row-reverse;
+  }
+
+  /* RTL Badge improvements */
+  .rtl .badge {
+    text-align: center;
+  }
+
+  /* Responsive improvements */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100vw;
+    }
+    
+    .rtl .overflow-x-auto {
+      direction: rtl;
+    }
+  }
+
+  /* RTL overflow improvements */
+  .rtl .overflow-x-auto {
+    direction: rtl;
+  }
+
+  .rtl .overflow-x-auto table {
+    margin-left: auto;
+    margin-right: 0;
+  }
 }
