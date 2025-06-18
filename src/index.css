@@ -257,4 +257,27 @@
     margin-left: auto;
     margin-right: 0;
   }
+
+  /* Modern Sidebar Improvements */
+  [data-sidebar="sidebar"] {
+    background: hsl(var(--sidebar-background));
+    border-color: hsl(var(--sidebar-border));
+  }
+
+  [data-sidebar="sidebar"] [data-sidebar="menu-button"][data-active="true"] {
+    background: hsl(var(--sidebar-accent));
+    color: hsl(var(--sidebar-accent-foreground));
+    font-weight: 500;
+  }
+
+  /* Ensure proper RTL sidebar positioning */
+  [dir="rtl"] [data-sidebar="sidebar"] {
+    border-left: 1px solid hsl(var(--sidebar-border));
+    border-right: none;
+  }
+
+  [dir="ltr"] [data-sidebar="sidebar"] {
+    border-right: 1px solid hsl(var(--sidebar-border));
+    border-left: none;
+  }
 }

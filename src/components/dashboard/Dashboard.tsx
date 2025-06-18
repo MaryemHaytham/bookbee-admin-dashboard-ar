@@ -32,8 +32,12 @@ export const Dashboard: React.FC = () => {
 
   return (
     <SidebarProvider>
-      <div className={`min-h-screen flex w-full bg-gray-50/30 ${language === 'ar' ? 'rtl' : 'ltr'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-        <main className={`flex-1 p-3 md:p-6 ${language === 'ar' ? 'order-1' : 'order-2'}`}>
+      <div 
+        className={`min-h-screen flex w-full bg-gray-50/30 ${language === 'ar' ? 'rtl' : 'ltr'}`} 
+        dir={language === 'ar' ? 'rtl' : 'ltr'}
+      >
+        <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="flex-1 p-3 md:p-6">
           <div className="mb-4 md:mb-6">
             <SidebarTrigger className="mb-4" />
           </div>
@@ -41,9 +45,6 @@ export const Dashboard: React.FC = () => {
             {renderContent()}
           </div>
         </main>
-        <div className={language === 'ar' ? 'order-2' : 'order-1'}>
-          <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
       </div>
     </SidebarProvider>
   );
