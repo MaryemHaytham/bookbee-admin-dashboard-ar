@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocalization } from '@/contexts/LocalizationContext';
@@ -13,10 +12,10 @@ export const LanguageSwitcher: React.FC = () => {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="sm"
       onClick={toggleLanguage}
-      className="flex items-center gap-2"
+      className="w-full flex items-center gap-2"
     >
       <Globe className="h-4 w-4" />
       {language === 'ar' ? 'English' : 'العربية'}

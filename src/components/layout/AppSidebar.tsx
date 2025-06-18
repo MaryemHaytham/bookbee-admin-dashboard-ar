@@ -58,7 +58,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
   return (
     <Sidebar 
       side={language === 'ar' ? 'right' : 'left'}
-      className={`border-border ${language === 'ar' ? 'border-l border-r-0' : 'border-r border-l-0'}`}
+      className={`border-border ${language === 'ar' ? 'border-l border-r-0' : 'border-r border-l-0'} `}
     >
       <SidebarHeader className="border-b border-border">
         <div className={`p-4 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
@@ -71,7 +71,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ activeTab, onTabChange }
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className={`px-4 py-2 text-sm font-medium text-gray-600 ${language === 'ar' ? 'text-right' : 'text-left'}`}>
+          <SidebarGroupLabel className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors ${
+                      language === 'ar' ? 'flex-row-reverse text-right' : 'text-left'
+                    }`} >
             {t('nav.mainMenu')}
           </SidebarGroupLabel>
           <SidebarGroupContent>

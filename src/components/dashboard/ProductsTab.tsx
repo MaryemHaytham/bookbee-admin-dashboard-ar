@@ -205,8 +205,8 @@ export const ProductsTab: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-6 ${language === 'ar' ? 'text-right' : 'text-left'}`} dir={language === 'ar' ? 'rtl' : 'ltr'}>
-      <div className={`flex justify-between items-center ${language === 'ar' ? 'flex-row-reverse' : 'flex-row'}`}>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div className={language === 'ar' ? 'text-right' : 'text-left'}>
           <h2 className="text-3xl font-bold text-gray-900">{t('products.title')}</h2>
           <p className="text-muted-foreground">{t('products.pageDescription')}</p>
