@@ -40,7 +40,7 @@ export const CategoriesTab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!categoryName.trim()) {
       toast({
         title: t('common.error'),
@@ -64,7 +64,7 @@ export const CategoriesTab: React.FC = () => {
           description: t('categories.addSuccess'),
         });
       }
-      
+
       setIsDialogOpen(false);
       setCategoryName('');
       setEditingCategory(null);

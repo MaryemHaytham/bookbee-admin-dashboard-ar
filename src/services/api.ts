@@ -198,7 +198,7 @@ class ApiService {
     return data;
   }
 
-  async createCategory(name: string): Promise<Category> {
+  async createCategory(name: string): Promise<Category | undefined> {
     console.log('Creating category:', name);
     const response = await fetch(`${API_BASE_URL}/rest/v1/category`, {
       method: 'POST',
@@ -212,7 +212,9 @@ class ApiService {
       throw new Error('Failed to create category: ' + error);
     }
 
-    const data = await response.json();
+    // Only parse JSON if there is content
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : undefined;
     console.log('Category created:', data);
     return data;
   }
@@ -268,15 +270,12 @@ class ApiService {
     return data;
   }
 
-  async createCategorySpec(categoryId: string, name: string): Promise<CategorySpec> {
-    console.log('Creating category spec:', { categoryId, name });
+  async createCategorySpec(category_id: string, name: string): Promise<CategorySpec | undefined> {
+    console.log('Creating category spec:', name, 'for category:', category_id);
     const response = await fetch(`${API_BASE_URL}/rest/v1/category_spec`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        category_id: categoryId,
-        name
-      }),
+      body: JSON.stringify({ category_id, name }),
     });
 
     if (!response.ok) {
@@ -285,7 +284,9 @@ class ApiService {
       throw new Error('Failed to create category spec: ' + error);
     }
 
-    const data = await response.json();
+    // Only parse JSON if there is content
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : undefined;
     console.log('Category spec created:', data);
     return data;
   }
@@ -341,7 +342,7 @@ class ApiService {
     return data;
   }
 
-  async createProductOwner(name: string): Promise<ProductOwner> {
+  async createProductOwner(name: string): Promise<ProductOwner | undefined> {
     console.log('Creating product owner:', name);
     const response = await fetch(`${API_BASE_URL}/rest/v1/product_owner`, {
       method: 'POST',
@@ -355,7 +356,9 @@ class ApiService {
       throw new Error('Failed to create product owner: ' + error);
     }
 
-    const data = await response.json();
+    // Only parse JSON if there is content
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : undefined;
     console.log('Product owner created:', data);
     return data;
   }
